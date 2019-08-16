@@ -1,0 +1,52 @@
+.reader-container{width: 100%; padding: 0px 8px 0px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; flex: 1;}
+.reader-item{ overflow: hidden; }
+.reader-container img{ width: 100%; }
+.recharge-modal{
+  width: 100%; height: 100%; background: rgba(0,0,0,0.6); position: fixed; top: 0; left: 0; z-index: 999;
+}
+.modal-box{ margin-top: 280px; font-size: 24px; width: 85%; height: auto; padding: 2% 2.5% 2.5% 2.5%; border-radius: 20px; margin-left: 5%; position: relative; background-color: #fff; }
+.modal-close{ position: absolute; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; right: -20px; top: -20px; background-color: #999; color: #fff; border-radius: 50%; }
+.modal-auto{ position: absolute; bottom: -50px; right: 10px; color: #fff; font-size: 26px;}
+.modal-checked{ width: 33px; height: 33px; border: 2px solid #fff; border-radius: 50%; margin-right: 10px;  }
+.modal-checked img{ width: 32px; height: 22px; }
+.modal-title{ padding: 10px 0; }
+.modal-price{ text-align: center; padding-top: 10px; }
+.price-num{ font-weight: 400; font-size: 30px; color: #fba572; padding: 0 5px; }
+.price-decoration{ padding-left: 7px; text-decoration: line-through; color: #999; }
+.modal-deductible{ text-align: center; color: #999; padding-top: 10px; }
+.modal-recharge{ width: 90%; margin: 8% 5% 0; text-align: center; font-size: 14px; color: #fff; line-height: 40px; height: 40px; background-color: #fba572; border-radius: 40px; }
+.modal-desc{ text-align: center; color: #999; padding: 4% 0;}
+.modal-balance{ padding-top: 14px; display: flex; flex-direction: row; align-items: center; }
+.modal-balance span{ color: #999; }
+.balance-bii{ width: 1px; height: 10px; background-color: #ccc; margin: 0 10px; }
+
+.reader-tabar{ position: fixed; z-index: 888; padding: 7px 0 5px; bottom: 0; left: 0; width: 100%; font-size: 12px; color: #fff; display: none; flex-direction: row; align-items: center; background: rgba(0,0,0,0.8);}
+.reader-tabar.active{ display: flex; }
+.tabar-item{ display: flex; flex: 1; flex-direction: column; align-items: center; position: relative;}
+.tabar-item img{ width: 20px; }
+.tabar-item:nth-child(2) img{ width: 10px; }
+.tabar-item:nth-child(4) img{ width: 10px; }
+.tabar-item span{ font-size: 12px; color: #fff; padding-top: 7px;}
+.tabar-item button{ font-size: 12px; color: #fff; line-height: 23px; position: absolute; top: 0; right: 0; width: 100%; height: 100%; padding-top: 7px; border: none; background: none; padding: 0; margin: 0;}
+.tabar-item button::after{ background: none; border: none;}
+.tabar-item button::before{ background: none; border: none; }
+
+.operate-box{ position: fixed; top: 10%; left: 0; width: 100%; height: 75%; }
+
+.footer-menu{ padding: 15px 0 0; height: auto; overflow: hidden; }
+.footer-top{ justify-content: flex-start; padding: 10px 0;}
+.footer-top-item{ flex: 1; text-align: center; flex-direction: column;}
+.footer-top-item img{ width: 20px; height: 20px; }
+.footer-top-item span{ font-size: 12px; color: #333; padding: 5px 0; }
+.footer-bot{ justify-content: flex-start; padding: 10px 0; border-top: 1px solid #f2f2f2;}
+.footer-bot-item{ flex: 1; }
+.footer-bot-item img{ width: 17px; }
+.footer-bot-item span{font-size: 12px; color: #333; padding: 5px; }
+.footer-bot-bii{ width: 1px; height: 20px; background-color: #f2f2f2; }
+
+.toHome{ position: fixed; right: 0; top: 0; padding: 15px 15px 0 0; z-index: 100; }
+.toHome img{ width: 30px; height: 30px; }
+
+
+.content{ font-size: 14px; padding: 7px; line-height: 30px; font-family: '微软雅黑'; }
+.content h3{ font-size: 16px; padding: 15px 0; }

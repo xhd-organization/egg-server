@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>推荐</title>
+	<link href="https://cdn.bootcss.com/Swiper/4.5.0/css/swiper.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/novel/css/common.css">
+	<link rel="stylesheet" href="/novel/css/index.css">
+</head>
+<body>
+	<div id="index">
+		<div class="header">
+			<div class="swiper-container">
+			    <div class="swiper-wrapper">
+			    	{% for item in recommend %}
+			    	{% for subitem in item %}
+			    		{% if loop.index0 === 0 %}
+			      		<div class="swiper-slide"><a href="/novel/<$ subitem.id $>"><img src="<$ subitem.cover $>" alt=""></a></div>
+			      		{% endif %}
+			      	{% endfor %}
+			      	{% endfor %}
+			    </div>
+			    <!-- Add Pagination -->
+			    <div class="swiper-pagination"></div>
+			  </div>
+		</div>
+		<div class="nav">
+			<a class="nav-item" href="/novel/detail/rank">
+				<div class="nav-icon"><img src="/novel/images/icon_paihang.png"></div>
+				<span>排行</span>
+			</a>
+			<a class="nav-item" href="/novel/detail/new">
+				<div class="nav-icon"><img src="/novel/images/icon_book.png"></div>
+				<span>新作</span>
+			</a>
+			<a class="nav-item" href="/novel/detail/update">
+				<div class="nav-icon"><img src="/novel/images/icon_gengxing.png"></div>
+				<span>更新</span>
+			</a>
+			<a class="nav-item" href="/novel/detail/search">
+				<div class="nav-icon"><img src="/novel/images/icon_search.png"></div>
+				<span>搜索</span>
+			</a>
+		</div>
+		{% for item in recommend %}
+		<div class="recommend">
+			<div class="recommend-h2">
+				<$ type_arr[loop.index].color_name $>
+			</div>
+			<div class="recommend-img">
+				<a href="/novel/<$ item[0].id $>"><img src="<$ item[0].cover $>"></a>
+			</div>
+			<div class="recommend-title" bindtap="toDetails"><span><$ item[0].name $></span></div>
+			<div class="recommend-desc" bindtap="toDetails"><span><$ item[0].desc $></span></div>
+			<div class="recommend-box">
+				{% for subitem in item %}
+					{% if 4 > loop.index > 0 %}
+					<div class="recommend-item">
+						<a href="/novel/<$ subitem.id $>">
+							<img src="<$ subitem.cover $>" lazy-load="<$ isLazyload $>">
+							<div class="recommend-item-title"><$ subitem.name $></div>
+							<div class="recommend-tag">
+								<span wx:for="<$ subitem.tags $>" wx:for-item="tagitem"><$ tagitem.tag_name $></span>
+							</div>
+						</a>
+					</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+			{% if item.length > 3 %}
+			<div class="recommend-more"><a href="/novel/list/?type=<$ item[0].type $>"><span>更多>></span></a></div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	</div>
+	<input type="hidden" name="openid" value="<$ openid $>">
+	<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/Swiper/4.5.0/js/swiper.min.js"></script>
+	<script>
+  var swiper = new Swiper('.swiper-container', {
+  	slidesPerView: 1,
+  	loop: true,
+  	autoplay: {
+  		delay: 5000,
+  		disableOnInteraction: false
+  	},
+  	pagination: {
+  		el: '.swiper-pagination'
+  	}
+  })
+	</script>
+</body>
+</html>

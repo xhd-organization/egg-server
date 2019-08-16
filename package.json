@@ -1,0 +1,72 @@
+{
+  "name": "egg-qy",
+  "version": "1.0.0",
+  "description": "this is a egg subject",
+  "private": true,
+  "dependencies": {
+    "await-stream-ready": "^1.0.1",
+    "bluebird": "^3.5.3",
+    "egg": "^2.22.2",
+    "egg-bcrypt": "^1.0.0",
+    "egg-cors": "^2.0.0",
+    "egg-jwt": "^2.2.0",
+    "egg-mongoose": "^2.1.1",
+    "egg-mysql": "^3.0.0",
+    "egg-router-plus": "^1.3.0",
+    "egg-scripts": "^2.1.0",
+    "egg-static": "^2.1.1",
+    "egg-validate": "^1.0.0",
+    "egg-view-nunjucks": "^2.2.0",
+    "egg-watcher-chokidar": "^2.0.0",
+    "image-downloader": "^3.3.0",
+    "js-base64": "^2.5.1",
+    "koa-is-json": "^1.0.0",
+    "mocha": "^4.0.1",
+    "moment": "^2.20.1",
+    "request": "^2.88.0",
+    "sha1": "^1.1.1",
+    "stream-to-array": "^2.3.0",
+    "stream-wormhole": "^1.0.3",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "autod": "^3.0.1",
+    "autod-egg": "^1.0.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "crypto": "^1.0.1",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.0",
+    "eslint": "^4.11.0",
+    "eslint-config-egg": "^5.1.0",
+    "webstorm-disable-index": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "start": "egg-scripts start --port=7001 --env=prod --daemon --title=egg --ignore-stderr",
+    "stop": "egg-scripts stop",
+    "dev": "egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "pm2": "pm2 start pm2.json",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod",
+    "docs": "jsdoc2md app/*.js > docs/api.md"
+  },
+  "ci": {
+    "version": "8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cnvp/egg-server.git"
+  },
+  "author": "cnvp",
+  "license": "MIT"
+}

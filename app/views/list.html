@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link rel="stylesheet" href="/novel/css/common.css">
+	<link rel="stylesheet" href="/novel/css/list.css">
+</head>
+<body>
+	<div class="remmend-container">
+		{% for item in list %}
+		<a class="rank-item" href="/novel/<$ item.id $>">
+			<img src="<$ item.cover $>" class="rank-img">
+			<div class="rank-txt">
+				<div class="rank-name"><$ item.name $></div>
+				<div class="rank-author"><$ item.author $></div>
+				<div class="rank-desc"><$ item.desc $></div>
+<!-- 				<div class="rank-tag">
+					<text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="{{tag.id}}">{{tag.tag_name}}</text>
+				</div> -->
+			</div>
+		</a>
+		{% endfor %}
+	</div>
+	<div class="footTxt">没有更多啦~</div>
+	<div class="footTxt">暂无最新作品~</div>
+
+	<input type="hidden" name="openid" value="{{openid}}">
+	<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+</body>
+</html>

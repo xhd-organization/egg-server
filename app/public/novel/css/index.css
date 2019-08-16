@@ -1,0 +1,87 @@
+*{ padding: 0; margin: 0; box-sizing: border-box; }
+a{ color: #000; }
+p{ margin: 0; }
+body{ font-size: 12px; font-family: '微软雅黑'; }
+.flex{ display: flex; justify-content: center; align-items: center; }
+.index-container{ flex-wrap: wrap; padding: 0 2.5px;}
+.index-item{ width: 33.33%; padding: 5px;}
+.index-item a{ display: block; }
+.index-item .cover{ width: 100%; }
+.index-item .cover img{ width: 100%; }
+.index-item p{ padding: 3px 0; }
+
+
+/*.header{ display: flex; align-items: center; justify-content: space-between; background-color: #fff; padding: 20px 0; }*/
+.header{ position: relative; height: 200px;}
+.header-user{ width: 80px; height: 80px; position: absolute; top: 30px; left: 0px; z-index: 100; padding-left: 30px; }
+.header-user img{ width: 80px; height: 80px; position: absolute; top: 0; left: 35px; z-index: 1;}
+.header-user img.user-active{ z-index: 10; left: 20px; }
+.header-txt{ width: 170px; justify-content: space-between; height: 60px; padding: 4px 4px; box-sizing: border-box; background-color: #f0ab83; border-radius: 30px; }
+.header-txt text{ flex: 1; text-align: center; font-size: 28px; color: #fff; height: 100%; line-height: 52px; box-sizing: border-box; }
+.header-txt text.header-active{ color: #f0ab83; background-color: #fff; border-radius: 35px; padding: 0 10px; }
+.header-search{ width: 55px; height: 55px; padding-right: 30px; }
+.index-swiper{ height: 420px; }
+.index-swiper img{ width: 100%; }
+.nav{ padding-top: 20px; overflow: hidden; display: flex; flex-direction: row; justify-content: flex-start; background: #fff;}
+.nav-item{ flex: 1; display: flex; justify-content: center; flex-direction: column; align-items: center;}
+.nav-icon{ width: 35%; flex: 1; text-align: center; display: flex; align-items: center; justify-content: center;}
+.nav-icon img{ width: 100%;}
+.nav-item span{ font-size: 14px; padding-bottom: 10px;}
+
+.swiper-container {
+  width: 100%;
+  height: 100%;
+}
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  /* Center slide text vertically */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.swiper-slide a{ display: block; width: 100%; height: 100%; overflow: hidden;}
+.swiper-slide a img{ width: 100%;}
+
+.recommend{ background: #fff; border-top: 10px solid rgb(248,249,251);}
+.recommend-h2{ padding: 7px 10px; font-size: 16px;}
+.recommend-img{ height: 200px; overflow: hidden;}
+.recommend-img img{ width: 100%; margin-top: 10px;}
+.recommend-img a{ display: block; height: 100%; overflow: hidden; }
+.recommend-title{ padding: 10px 20px 0; font-size: 14px; }
+.recommend-desc{ padding: 5px 20px 0; display: -webkit-box;
+-webkit-box-orient: vertical;
+-webkit-line-clamp: 2;
+overflow: hidden; line-height: 20px; max-height: 70px; overflow: hidden; font-size: 12px; color: #999; }
+.recommend-box{ padding: 20px 0; overflow: hidden; padding-bottom: 15px;}
+.recommend-item{ width: 32%; float: left; overflow: hidden; padding-top: 10px;}
+.recommend-item:nth-child(2){ margin: 0 2%; }
+.recommend-item a{ display: block; height: 100%; overflow: hidden;}
+.recommend-item img{ width: 100%; max-height: 177px;}
+.recommend-item-title{ overflow: hidden; font-size: 12px; padding-left: 10px; padding-top: 5px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
+.recommend-tag{ display: flex; align-items: center; justify-content: flex-start; overflow: hidden; padding-left: 5px;}
+.recommend-tag span{ margin: 0 5px; font-size: 24px; color: #999;}
+.recommend-more{ text-align: center; font-size: 12px; margin: 0 15px; border-top: 1px solid #f8f8f8;}
+.recommend-more a{ display: block; padding: 10px 0; }
+
+.like .recommend-box{ padding-top: 0; }
+.like .recommend-h2{ position: relative; }
+.like-update{ position: absolute; right: 20px; font-size: 26px; color: #999; }
+
+.sexModal{ position: fixed; top: 0; height: 100%; bottom: 0; width: 100%; background-color: rgba(0,0,0,0.4); z-index: 102;}
+.sex{ width: 70%; position: relative; margin: 350px auto 0; height: auto; background-color: #fff; border-radius: 20px; }
+.sex-head{ width: 250px; height: 111px; position: absolute; top: -108px; left: 50%; margin-left: -125px; }
+.sex-title{ background-color: #efa377; height: 90px; line-height: 90px; text-align: center; border-radius: 20px 10px 0 0; color: #fff; font-size: 32px;}
+.sex-box{ justify-content: flex-start; padding: 40px 0; }
+.sex-item{ flex: 1; text-align: center; }
+.sex-item img{ width: 100px; height: 100px; }

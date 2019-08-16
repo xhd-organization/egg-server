@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title><$ info.name $></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.bootcss.com/Swiper/4.5.0/css/swiper.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/novel/css/common.css">
+  <link rel="stylesheet" href="/novel/css/detail.css">
+</head>
+<body>
+	<div class="details-container" id="details">
+    <div class="details-header">
+      <div class="details-bg">
+        <img src="<$ info.cover $>">
+        <img src="<$ info.cover $>">
+      </div>
+      <div class="details-info">
+        <img src="<$ info.cover $>" class="info-cover">
+        <div class="info-txt">
+          <div class="info-name"><$ info.name $></div>
+          <div class="info-bii info-author"><span>作者：</span> <$ info.author $></div>
+          <div class="flex-center info-bii info-tag"><span>标签：</span> <div class="tag-txt"><span wx:for="<$ info.tags $>" wx:key="<$ item.id $>" data-tagid="<$ item.id $>"><$ item.tag_name $> </div></div>
+          <div class="info-bii info-progress"><span>进度：</span>{% if info.status %} 已完结 {% else %}连载中{% endif %}</div>
+          <div class="info-bii info-updatetime"><span>更新：</span> <$ info.last_chapter_info.chapter_title $></div>
+        </div>
+      </div>
+      <div class="toHome" bindtap="toHome"><img src="/novel/images/icon_home.png"></div>
+    </div>
+    <div class="details-operate">
+      <div class="operate-collection" data-id="<$ info.id $>" bindtap="changeSub">
+        <img src="/novel/images/icon_shoucang.png">
+        <span>{% if info.is_sub === '0' %} 收藏 {% else %} 已收藏 {% endif %}</span>
+      </div>
+      <a class="operate-btn" href="/novel/<$ info.id $>/{% if info.last_read_chapter %}<$ info.last_read_chapter $>{% else %}1{% endif %}" data-chapter="<$ info.last_read_chapter $>" data-id="<$ info.id $>">{% if info.last_read_chapter %} 续看 {% else %} 开始阅读 {% endif %}</a>
+    </div>
+    <div class="details-contact">
+      <div class="details-desc" :class="isOpen ? '' : 'details-desc-line'">
+        <$ info.desc $>
+        <span class="changeOpen" @click="changeOpen">
+          {% if info.desc.length > 80 %}
+          <span class="ellipsis" :hidden="isOpen">... </span>
+            {{ isOpen ? '收起' : '展开'}}
+          {% endif %}
+        </span>
+      </div>
+      <div class="details-number">
+        <div class="number-item number-collection"> <$ info.num_collect $> <span class="number-name">收藏</span> </div>
+        <div class="number-bii"></div>
+        <div class="number-item number-hot"> <$ info.num_hot $>℃<span class="number-name">人气</span> </div>
+        <div class="number-bii"></div>
+        <div class="number-item number-click"> <$ info.num_click $> <span class="number-name">点击</span> </div>
+      </div>
+    </div>
+    <div class="details-reward">
+      <div class="reward-box">
+        {% if collect_user.length > 0 %}
+        <div class="flex-center reward-user" bindtap="toReward" data-id="<$ info.id $>">
+            {% if collect_user.length < 8 %}
+            <div class="flex-center">
+              {% for item in collect_user %}
+              <p class="flex-center reward-slide"><img src="<$ item.headimgurl $>"><span class="reward-name"><$ item.nickname $></span></p>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="swiper-container1">
+              <div class="swiper-wrapper">
+                {% for item in collect_user %}
+                  <div class="swiper-slide"><image src="<$ item.headimgurl $>"><span> <$ item.nickname $></span> </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+        </div>
+          <!-- <div class="reward-txt">共<span><$ info.num_ $>llect %}</span>人收藏</div> -->
+        {% else %}
+        <div class="reward-note">各位看官，收藏一下呗~</div>
+        {% endif %}
+      </div>
+      <!-- <div class="reward-btn" catchtap="changePay">打赏</div> -->
+    </div>
+    <div class="details-order">
+      <div class="order-header">
+        <div class="order-h2">最近更新：<$ info.create_time $>   <!--更新至： <$ last_chap $>r_info.title %} --></div>
+        <div class="flex-center order-btn"><div data-by='1' class="order-by {% if orderby===1' %}order-active{% else %}''{% endif %}" bindtap="changeOrder">↑正序</div><div class="order-by {% if orderby=== '0' %}order-active{% else %}{% endif %}" data-by='0' bindtap="changeOrder">↓倒序</div></div>
+      </div>
+        <a class="order-item" v-for="item in chapter_arr" :href="'/novel/<$ info.id $>/' + item.chapter_id">{{ item.title }}<span>{{ item.is_charge > 0 ? '[VIP]' : ''}}</span> </a>
+        {% if info.chapter.length > 5 %}
+          <div class="order-readAll">↓ 展开查看全部章节 ↓</div>
+          <!-- <div class="order-readAll">↑ 收缩章节 ↑</div> -->
+        {% endif %}
+    </div>
+    <div class="comment-con">
+      <div class="comment-name">最新评论</div>
+      <div class="flex-center comment-box">
+        <input type="text" value="<$ comment_txt $>" bindinput="bindCommentInput" placeholder="觉得有趣就留下评论吧~" class="comment-input"/>
+        <button class="comment-btn" bindtap="sendBtn" data-type='comment' data-authorid="<$ info.userid $>">发送</button>
+      </div>
+      {% if commentArr.length > 0 %}
+      <div class="commnet-list">
+        {% for item in commentArr %}
+        <div class="flex-center comment-item" data-userid= "<$ item.open $>" data-index="<$ item.index $>" bindtap="replyChange">
+          <img class="comment-userimg" src="{% if item.headimgurl %} <$ item.headimgurl $> {% else %} '/novel/images/touxiang.png' {% endif %}" data-src="<$ item.headimgurl $>" data-index="<$ index $>" binderror="_loadImgError">
+          <div class="comment-txt">
+            <div class="comment-username"><$ item.nickname $></div>
+            <div class="comment-content">
+              <span><$ item.content $></span>
+            </div>
+            {% if item.c_id %}
+            <div class="comment_parent"><span>@<$ item.c_nickname $>：</span><$ item.c_content $></div>
+            {% endif %}
+            <div class="comment-info">{{ `<$ item.create_time $>` | formatTime('date') }} </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+  <!--      <div class="flex-center author-more" bindtap="toMoreComment" wx:if="<% commentArr.length > 3 %>">更多评论<image src="/image/icon_right.png"></image></div> -->
+      {% else %}
+      <div class="comment-note"><div class="comment-notxt">这里空空如也~</div></div>
+      {% endif %}
+    </div>
+    </div>
+    <div class="recommend-box" {% if otherArr.length===0 %}hidden{% endif %}>
+        <div class="recommend-title">大家还看过这些作品</div>
+        <div class="recommend">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {% for item in otherArr %}
+                    <div class="swiper-slide">
+                        <a href="/novel/<$ item.id $>">
+                            <div class="bookshelf-item" bindtap="toDetails" data-id="<$ item.id $>">
+                                <div class="bookshelf-img">
+                                    <img src="<$ item.cover $>" class="bookshelf-bg">
+                                </div>
+                                <div class="bookshelf-name">
+                                    <$ item.name $>
+                                </div>
+                                <div class="bookshelf-desc">
+                                    <$ item.lasthapter_name $>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                    <div class="swiper-wrapper">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <cnvp-pay show="<$ cnvpShow $>" book-id="<$ info.id $>" bind:myevent="onMyEvent" balance="<$ balanceIn $>"></cnvp-pay>
+  {% if is_login %}
+  <div class="flex-center input-box">
+    <div class="flex-center reply-con">
+      <span wx:if="<$ reply.c_i $>">@<$ reply.c_nickname $>:</span>
+      <input type="text" value="<$ reply.reply_txt $>" data-cid="<$ reply.c_id $>" focus="true" bindblur="bindReplyBlur" bindinput="bindReplyInput" placeholder="" class="comment-input"/>
+    </div>
+    <button class="comment-btn" bindtap="sendBtn" data-type='reply' data-authorid="<$ info.userid $>">发送</button>
+  </div>
+  {% endif %}
+  <script src="https://cdn.bootcss.com/Swiper/4.5.0/js/swiper.min.js"></script>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+  <script type="text/javascript" src="/novel/js/common.js"></script>
+  <script>
+    var swiper = new Swiper('.swiper-container', {
+      slidesPerView: 3,
+      loop: true,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false
+      },
+      pagination: {
+        el: '.swiper-pagination'
+      }
+    })
+    var vm = new Vue({
+      el: '#details',
+      data: {
+        isOpen: false,
+        chapter_arr: []
+      },
+      mounted: function() {
+        console.log(this.chapter_arr)
+      },
+      methods: {
+        changeOpen: function() {
+          this.isOpen = this.isOpen ? false : true
+        }
+      }
+    })
+  </script>
+</body>
+</html>

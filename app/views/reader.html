@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><$ info.title $></title>
+  <link rel="stylesheet" href="/novel/css/common.css">
+  <link rel="stylesheet" href="/novel/css/reader.css">
+</head>
+<body>
+  <div class="reader-container">
+    <div class="content">
+      <h3><$ info.title $></h3>
+      <p><$ info.content $></p>
+    </div>
+    <div class="footer-menu">
+        <div class="flex-center footer-top">
+            <div class="flex-center footer-top-item" bindtap="changeSub" data-id="{{info.comic_id}}">
+                <img src="/novel/images/icon_shoucang1.png"/>
+                <span>{% if info.is_sub =='1' %}已收藏{% else %}收藏{% endif %}</span>
+            </div>
+            <div class="flex-center footer-top-item" bindtap="toCatalog">
+                <img src="/novel/images/icon_mulu1.png"/>
+                <span>目录</span>
+            </div>
+            <div class="flex-center footer-top-item" bindtap="changePay">
+                <img src="/novel/images/icon_money4.png"/>
+                <span>打赏</span>
+            </div>
+        </div>
+        <div class="flex-center footer-bot">
+            <div class="flex-center footer-bot-item" bindtap="changePre">
+                <img src="/novel/images/icon_last1.png"/>
+                <span>上一话</span>
+            </div>
+            <div class="footer-bot-bii"></div>
+            <div class="flex-center footer-bot-item" bindtap="changeNext">
+                <span>下一话</span>
+                <img src="/novel/images/icon_next1.png"/>
+            </div>
+        </div>
+    </div>
+    <div class="toHome" bindtap="toHome">
+        <img src="/novel/images/icon_home_s.png"/>
+    </div>
+  </div>
+  <div class="operate-box" bindtap="changeBox"></div>
+  <div class="reader-tabar" hidden="">
+      <div class="tabar-item" bindtap="changeSub" data-id="{{info.n_id}}">
+          <img src="/novel/images/icon_shoucang2.png" mode="widthFix"/>
+          <span>{% if info.is_sub =='1' %}已收藏{% else %}收藏{% endif %}</span>
+      </div>
+      <div class="tabar-item" bindtap="changePre">
+          <img src="/novel/images/icon_prev.png" mode="widthFix"/>
+          <span>上话</span>
+      </div>
+      <div class="tabar-item" bindtap="toCatalog">
+          <img src="/novel/images/icon_mulu.png" mode="widthFix"/>
+          <span>目录</span>
+      </div>
+      <div class="tabar-item" bindtap="changeNext">
+          <img src="/novel/images/icon_next.png" mode="widthFix"/>
+          <span>下话</span>
+      </div>
+      <div class="tabar-item" catchtap="changePay">
+          <img src="/novel/images/icon_moeny3.png" mode="widthFix"/>
+          <span>打赏</span>
+      </div>
+  </div>
+  <div class="recharge-modal" hidden="{{isModal}}">
+      <div class="modal-box">
+          <div class="modal-title"><span> 【购买】</span>{{info.name}}：{{title}}</div>
+          <div class="modal-price">
+              支付 <span class="price-num"> {{product_price}}</span> 积分
+              <!-- <span class="price-decoration">80积分</span> -->
+          </div>
+          <!-- <div class="modal-deductible">酷点已抵扣80积分</div> -->
+          <block wx:if="{{amount < product_price}}">
+              <div class="modal-recharge" bindtap="toRecharge">积分不足，充值积分</div>
+          </block>
+          <div class="modal-recharge" bindtap="buyChapter" wx:else>购买此章节</div>
+          <div class="modal-desc" bindtap="toMine" wx:if="{{hasUserInfo}}">完善个人资料，赚酷点免费看</div>
+          <div class="modal-balance">我的余额：<span>{{info.acount ? info.acount : 0}}积分</span><!-- <div class="balance-bii"></div><span>{{amount}}酷点</span> -->
+          </div>
+          <div class="modal-close" bindtap="sendMoney">X</div>
+          <div class="flex-center modal-auto" bindtap="changeSelected">
+              <div class="modal-checked">
+                  <img src="/novel/images/icon_gou.png" alt="" hidden="{{isAutopay!='1'}}"/>
+              </div><span>下章自动扣费，不在提醒</span>
+          </div>
+      </div>
+  </div>
+  <cnvp-pay show="{{cnvpShow}}" book-id="{{info.comic_id}}" bind:myevent="onMyEvent" balance="{{balanceInfo}}"></cnvp-pay>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      var that = this
+      var isOperateActive = false
+
+      function moveTop() {
+        var that = this
+        var scrollTop = that.$refs.refscroll.scrollTop
+        var windowHeight = that.$refs.refscroll.clientHeight
+        var countHeight = that.$refs.refCount.clientHeight
+        if (isOperateActive) {
+          isOperateActive = false
+        } else {
+          if (scrollTop > windowHeight) {
+            that.$refs.refscroll.scrollTop = (scrollTop - windowHeight)
+          } else if (scrollTop > 0 && scrollTop < windowHeight) {
+            that.$refs.refscroll.scrollTop = 0
+          } else if (scrollTop === 0) {
+            that.loadingPretBtn()
+          }
+        }
+      }
+
+      function moveBottom() {
+        var that = this
+        var scrollTop = that.$refs.refscroll.scrollTop
+        var windowHeight = that.$refs.refscroll.clientHeight
+        var countHeight = that.$refs.refCount.clientHeight
+        if (isOperateActive) {
+          isOperateActive = false
+        } else {
+          if (countHeight - (scrollTop + windowHeight) > windowHeight) {
+            that.$refs.refscroll.scrollTop = (scrollTop + windowHeight)
+          } else if (countHeight - (scrollTop + windowHeight) < windowHeight && countHeight - (scrollTop + windowHeight) > 0) {
+            that.$refs.refscroll.scrollTop = scrollTop + windowHeight
+          } else if (countHeight - (scrollTop + windowHeight) === 0) {
+            // that.$refs.refscroll.scrollTop = scrollTop + windowHeight
+            that.loadingNextBtn()
+          }
+        }
+      }
+
+      function toggleActiveBox() {
+        isOperateActive = isOperateActive ? false : true
+      }
+    })
+  </script>
+</body>
+</html>

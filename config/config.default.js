@@ -1,4 +1,4 @@
-const cn = require('./cn') // 基础文字配置文件
+const cn = require('./cn_default') // 基础文字配置文件
 const code = require('./code') // 错误码
 const path = require('path')
 const fs = require('fs')

@@ -44,8 +44,14 @@ class AdminController extends Controller {
   // 获取模型列表
   async getmodule() {
     const { ctx, service } = this
-    const module_arr = await service.form.findAll('pt_module', { isparent: false }, ['ids', 'description', 'names'], [['orderids', 'desc']], 1000)
-    ctx.helper.success({ ctx, res: module_arr })
+    const count = await service.form.count('pt_module')
+    const { params } = ctx
+    console.log(ctx.req)
+    const page = params.page ? params.page : 1
+    const limit = params.limit ? parseInt(params.limit) : 20
+    const offset = (page - 1) * limit
+    const module_arr = await service.form.findAll('pt_module', { isparent: false }, ['ids', 'description', 'names'], [['orderids', 'desc']], limit, offset)
+    ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
   }
 }
 

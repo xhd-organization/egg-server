@@ -9,6 +9,13 @@ class UserService extends Service {
     }
     ctx.throw(404, '未找到此用户')
   }
+
+  // 获取表字段
+  async modulefield(name) {
+    const { service } = this
+    const field = await service.form.field(name)
+    return field
+  }
 }
 
 module.exports = UserService

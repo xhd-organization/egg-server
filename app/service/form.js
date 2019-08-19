@@ -54,11 +54,18 @@ class FormService extends Service {
   // 最近几个月的数量
   async countMonth(name, month_num, time_field) {
     const num = await this.app.mysql.query(`SELECT COUNT(*) AS count FROM ${name} WHERE DATE_SUB(CURDATE(), INTERVAL ${month_num} MONTH) <= date(${time_field})`)
-    console.log(num)
     if (num[0]) {
       return num[0].count
     }
     return 0
+  }
+
+  async field(name) {
+    const config = this.config
+    const { database: db_name } = config.mysql.client
+    const field = await this.app.mysql.query(`select COLUMN_NAME as name, DATA_TYPE as data_type, COLUMN_TYPE as lentype, COLUMN_COMMENT as comments, ORDINAL_POSITION as listorder from information_schema.COLUMNS where table_name = '${name}' and table_schema = '${db_name}';`)
+    // const field = await this.app.mysql.query(`SELECT COLUMN_NAME AS name,if( COLUMN_COMMENT is null or COLUMN_COMMENT='', COLUMN_NAME, COLUMN_COMMENT) AS namecn FROM information_schema.COLUMNS WHERE TABLE_NAME='${name}'`)
+    return field
   }
 
   // 连表查询

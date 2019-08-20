@@ -41,6 +41,29 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res: { system, menu }})
   }
 
+  // 创建模型
+  async createmodule() {
+    const { ctx, service } = this
+    const { name, title } = ctx.request.body
+    if (!name && !title) {
+      ctx.throw(404, '字段不能为空')
+      return false
+    }
+    const res = await service.admin.createmodule(ctx.request.body)
+    ctx.helper.success({ ctx, res })
+  }
+
+  async updatemodule() {
+    const { ctx, service } = this
+    const { name, title, moduleid } = ctx.request.body
+    if (!name && !title && !moduleid) {
+      ctx.throw(404, '字段不能为空')
+      return false
+    }
+    const res = await service.admin.updatemodule(ctx.request.body)
+    ctx.helper.success({ ctx, res })
+  }
+
   // 获取模型列表
   async getmodule() {
     const { ctx, service } = this
@@ -61,11 +84,66 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
-  // 获取某个模型字段
-  async modulefield() {
+  // 获取某个模型的字段列表
+  async modulefieldlist() {
     const { ctx, service } = this
-    const field_feedback = await service.admin.modulefield('lt_feedback')
+    const { moduleid } = ctx.query
+    if (!moduleid) {
+      ctx.throw(404, '字段不能为空')
+      return false
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (!module_info) {
+      ctx.throw(404, '未找到对应的模型数据')
+    }
+    const field_feedback = await service.admin.modulefieldlist(module_info.name)
     ctx.helper.success({ ctx, res: field_feedback })
+  }
+
+  /**
+   * 获取字段详情
+   * @date        2019-08-20
+   * @author cnvp
+   * @anotherdate 2019-08-20T16:23:08+0800
+   */
+  async modulefielddetail() {
+    const { ctx, service } = this
+    const { moduleid, fieldid } = ctx.query
+    if (!moduleid && !fieldid) {
+      ctx.throw(404, '字段不能为空')
+      return false
+    }
+    const field = await service.form.find('pt_field', { id: fieldid, moduleid })
+    ctx.helper.success({ ctx, res: field })
+  }
+
+  // 添加字段
+  async addmodulefield() {
+    const { ctx, service } = this
+    const { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
+    if (moduleid && field && name && setup) {
+      const is_exits = await service.form.find('pt_field', { moduleid, field })
+      if (is_exits) {
+        ctx.throw(406, '该字段已存在')
+      } else {
+        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
+        ctx.helper.success({ ctx, res: is_create.insertId })
+      }
+    } else {
+      ctx.throw(404, '缺少字段')
+    }
+  }
+
+  // 更新字段
+  async updatemodulefield() {
+    const { ctx, service } = this
+    const { fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
+    if (fieldid && moduleid && field && name && setup) {
+      const is_create = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status }, { id: fieldid })
+      ctx.helper.success({ ctx, res: is_create.insertId })
+    } else {
+      ctx.throw(404, '缺少字段')
+    }
   }
 }
 

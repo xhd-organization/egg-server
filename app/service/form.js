@@ -63,7 +63,7 @@ class FormService extends Service {
   async field(name) {
     const config = this.config
     const { database: db_name } = config.mysql.client
-    const field = await this.app.mysql.query(`select COLUMN_NAME as name, DATA_TYPE as data_type, COLUMN_TYPE as lentype, COLUMN_COMMENT as comments, ORDINAL_POSITION as listorder from information_schema.COLUMNS where table_name = '${name}' and table_schema = '${db_name}';`)
+    const field = await this.app.mysql.query(`select COLUMN_NAME as name, DATA_TYPE as data_type, COLUMN_TYPE as lentype, COLUMN_COMMENT as comments, ORDINAL_POSITION as listorder from information_schema.COLUMNS where table_name = '${name}' and table_schema = '${db_name}'`)
     // const field = await this.app.mysql.query(`SELECT COLUMN_NAME AS name,if( COLUMN_COMMENT is null or COLUMN_COMMENT='', COLUMN_NAME, COLUMN_COMMENT) AS namecn FROM information_schema.COLUMNS WHERE TABLE_NAME='${name}'`)
     return field
   }
@@ -71,6 +71,305 @@ class FormService extends Service {
   // 连表查询
   async finds(param) {
     await this.app.mysql.query('SELECT a.nickName,a.avatarUrl,b.star_level,b.tel,b.pre_time, b.id, b.uid, b.longitude, b.latitude, b.status, b.result, b.create_time, b.update_time  FROM user_info  a, y_pre_info b WHERE a.id=b.uid AND b.result=? ORDER BY b.id DESC LIMIT ? , ?', [param.result, param.offset, parseInt(param.limit)])
+  }
+
+  // 创建表 tablename=表名， tableType=1 创建空表  0=创建数据列表
+  async createTable(tablename, tableType) {
+    let sql = ''
+    if (tableType === '1') {
+      sql += `CREATE TABLE ${tablename} (`
+      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
+      sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
+      sql += `username varchar(40) NOT NULL DEFAULT '',`
+      sql += `title varchar(120) NOT NULL DEFAULT '',`
+      sql += `title_style varchar(40) NOT NULL DEFAULT '',`
+      sql += `thumb varchar(100) NOT NULL DEFAULT '',`
+      sql += `keywords varchar(120) NOT NULL DEFAULT '',`
+      sql += `description mediumtext NOT NULL,`
+      sql += `content mediumtext NOT NULL,`
+      sql += `url varchar(60) NOT NULL DEFAULT '',`
+      sql += `template varchar(40) NOT NULL DEFAULT '',`
+      sql += `posid tinyint(2) unsigned NOT NULL DEFAULT '0',`
+      sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `recommend tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `readgroup varchar(100) NOT NULL DEFAULT '',`
+      sql += `readpoint smallint(5) NOT NULL DEFAULT '0',`
+      sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
+      sql += `hits int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `lang tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `PRIMARY KEY (id),`
+      sql += `KEY status (id,status,listorder),`
+      sql += `KEY catid (id,catid,status),`
+      sql += `KEY listorder (id,catid,status,listorder)`
+      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+    } else {
+      sql += `CREATE TABLE ${tablename} (`
+      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
+      sql += `username varchar(40) NOT NULL DEFAULT '',`
+      sql += `url varchar(60) NOT NULL DEFAULT '',`
+      sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
+      sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `lang tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `PRIMARY KEY (id)`
+      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+    }
+    return sql
+  }
+
+  // 创建默认表字段
+  async createDefaultField(moduleid, tableType) {
+    let sql = []
+    if (tableType === '1') {
+      sql = [{
+        moduleid,
+        field: 'catid',
+        name: '栏目',
+        tips: '',
+        required: 1,
+        minlength: 1,
+        maxlength: 6,
+        pattern: 'digits',
+        errormsg: '',
+        classname: '',
+        type: 'catid',
+        setup: '',
+        ispost: 1,
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 1
+      }, {
+        moduleid,
+        field: 'title',
+        name: '标题',
+        tips: '',
+        required: 1,
+        minlength: 3,
+        maxlength: 80,
+        pattern: '',
+        errormsg: '标题必填3-80个字',
+        classname: '',
+        type: 'title',
+        setup: '{"thumb": "1", "style": "1", "size": "55"}',
+        ispost: 1,
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 1
+      }, {
+        moduleid,
+        field: 'createtime',
+        name: '创建时间',
+        tips: '',
+        required: 1,
+        minlength: 0,
+        maxlength: 0,
+        pattern: '',
+        errormsg: '',
+        classname: '',
+        type: 'datetime',
+        setup: '',
+        ispost: 1,
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 1
+      }, {
+        moduleid,
+        field: 'readpoint',
+        name: '访问权限',
+        tips: '',
+        required: 0,
+        minlength: 0,
+        maxlength: 0,
+        pattern: '',
+        errormsg: '',
+        classname: '',
+        type: 'groupid',
+        setup: '{"inputtype": "heckbox", "fieldtype": "inyint", "labelwidth": "5", "default": ""}',
+        ispost: '',
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 1
+      }, {
+        moduleid,
+        field: 'status',
+        name: '状态',
+        tips: '',
+        required: '',
+        minlength: 0,
+        maxlength: 0,
+        pattern: '',
+        errormsg: '',
+        classname: '',
+        type: 'radio',
+        setup: '{"options": "发布|1\r\n定时发布|0", "fieldtype": "tinyint", "numbertype": "1", "labelwidth": "75", "default": "1"}',
+        ispost: '',
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 0
+      }]
+    } else {
+      sql = [{
+        moduleid,
+        field: 'createtime',
+        name: '创建时间',
+        tips: '',
+        required: 1,
+        minlength: 0,
+        maxlength: 0,
+        pattern: '',
+        errormsg: '',
+        classname: '',
+        type: 'datetime',
+        setup: '',
+        ispost: 1,
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 1
+      }, {
+        moduleid,
+        field: 'status',
+        name: '状态',
+        tips: '',
+        required: '',
+        minlength: 0,
+        maxlength: 0,
+        pattern: '',
+        errormsg: '',
+        classname: '',
+        type: 'radio',
+        setup: '{"options": "发布|1\r\n定时发布|0", "fieldtype": "tinyint", "numbertype": "1", "labelwidth": "75", "default": "1"}',
+        ispost: '',
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 0
+      }]
+    }
+    return sql
+  }
+
+  // 获取表sql语句 客户端数据， way，操作方式 add = 添加 否则为更新
+  async get_tablesql(param, way) {
+    const { moduleid, field, oldfield } = param
+    let { type: fieldtype, maxlength } = param
+    if (param['setup']['fieldtype']) {
+      fieldtype = param['setup']['fieldtype']
+    }
+    let _default = param['setup']['default']
+    const module_info = await this.find('pt_module', { ids: moduleid })
+    const tablename = module_info.name
+    maxlength = parseInt(maxlength)
+    let sql = ''
+    const numbertype = param['setup']['numbertype']
+    if (way === 'add') {
+      way = ' ADD '
+    } else {
+      way = ` CHANGE ${oldfield} `
+    }
+
+    switch (fieldtype) {
+      case 'varchar':
+        if (!maxlength) maxlength = 255
+        maxlength = Math.min.apply(null, [maxlength, 255])
+        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default}`
+        break
+
+      case 'title':
+        if (!maxlength) maxlength = 255
+        maxlength = Math.min.apply(null, [maxlength, 255])
+        sql = `ALTER TABLE ${tablename} ${way} title VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default}`
+        sql = `ALTER TABLE ${tablename} ${way} title_style VARCHAR( 40 ) NOT NULL DEFAULT `
+        sql = `ALTER TABLE ${tablename} ${way} thumb VARCHAR( 100 ) NOT NULL DEFAULT `
+        break
+
+      case 'catid':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0'`
+        break
+
+      case 'number':
+      {
+        const decimaldigits = param['setup']['decimaldigits']
+        _default = decimaldigits === 0 ? parseInt(_default) : parseFloat(_default)
+        sql = `ALTER TABLE ${tablename} ${way} ${field} ${(decimaldigits === 0 ? 'INT' : 'decimal( 10, ' + decimaldigits + ' )')} ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
+        break
+      }
+
+      case 'tinyint':
+        if (!maxlength) maxlength = 3
+        maxlength = Math.min.apply(null, [maxlength, 3])
+        _default = parseInt(_default)
+        sql = `ALTER TABLE ${tablename} ${way} ${field} TINYINT( ${maxlength} ) ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
+        break
+
+      case 'smallint':
+        _default = parseInt(_default)
+        if (!maxlength) maxlength = 8
+        maxlength = Math.min.apply(null, [maxlength, 8])
+        sql = `ALTER TABLE ${tablename} ${way} ${field} SMALLINT( ${maxlength} ) ${(numbertype === 1 ? 'UNSIGNED' : '')}
+        " NOT NULL DEFAULT _default`
+        break
+
+      case 'int':
+        _default = parseInt(_default)
+        sql = `ALTER TABLE ${tablename} ${way} ${field} INT ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
+        break
+
+      case 'mediumint':
+        _default = parseInt(_default)
+        sql = `ALTER TABLE ${tablename} ${way} ${field} INT ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
+        break
+
+      case 'mediumtext':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
+        break
+
+      case 'text':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} TEXT NOT NULL`
+        break
+
+      case 'posid':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} TINYINT(2) UNSIGNED NOT NULL DEFAULT '0'`
+        break
+
+        // case 'typeid':
+        // sql = "ALTER TABLE ${tablename} ${way} ${field} SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0'"
+        // break
+      case 'datetime':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} INT(11) UNSIGNED NOT NULL DEFAULT '0'`
+        break
+
+      case 'editor':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} TEXT NOT NULL`
+        break
+
+      case 'image':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( 80 ) NOT NULL DEFAULT ''`
+        break
+
+      case 'images':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
+        break
+
+      case 'file':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( 80 ) NOT NULL DEFAULT ''`
+        break
+
+      case 'files':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
+        break
+    }
+    return sql
   }
 }
 

@@ -18,7 +18,7 @@ class UserService extends Service {
   }
 
   /**
-   * 创建模型
+   * 创建模型,初始化字段
    * @date        2019-08-20
    * @author cnvp
    * @anotherdate 2019-08-20T09:34:19+0800
@@ -32,9 +32,15 @@ class UserService extends Service {
       ctx.throw(405, `${param.name}已存在`)
       return false
     }
-    const is_create = await service.form.create('pt_module', { title: param.title, name: param.name, description: param.description, listfields: param.listfields })
+    const tableType = param.tableType === '0' ? '0' : '1'
+    const sql_createTable = await service.form.createTable(param.name, tableType)
+    await this.app.mysql.query(sql_createTable)
+    const ids = ctx.helper.getToken(param.name)
+    const is_create = await service.form.create('pt_module', { ids, title: param.title, name: param.name, description: param.description, listfields: param.listfields })
+    const sql_createDefaultField = await service.form.createDefaultField(ids, tableType)
+    await service.form.create('pt_field', sql_createDefaultField)
     if (is_create) {
-      return is_create.insertId
+      return ids
     }
     return false
   }
@@ -66,7 +72,7 @@ class UserService extends Service {
    */
   async modulefieldlist(name) {
     const { service } = this
-    const field = await service.form.field(name)
+    const field = await service.form.findAll(name)
     return field
   }
 }

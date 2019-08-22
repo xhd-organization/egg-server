@@ -53,6 +53,7 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 更新模型
   async updatemodule() {
     const { ctx, service } = this
     const { name, title, moduleid } = ctx.request.body
@@ -96,8 +97,8 @@ class AdminController extends Controller {
     if (!module_info) {
       ctx.throw(404, '未找到对应的模型数据')
     }
-    const field_feedback = await service.admin.modulefieldlist(module_info.name)
-    ctx.helper.success({ ctx, res: field_feedback })
+    const field_arr = await service.admin.modulefieldlist(module_info.name, moduleid)
+    ctx.helper.success({ ctx, res: field_arr })
   }
 
   /**

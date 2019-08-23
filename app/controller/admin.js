@@ -1,6 +1,7 @@
 const Controller = require('egg').Controller
 
 class AdminController extends Controller {
+  // 用户登录
   async login() {
     const { ctx, service } = this
     const { username } = ctx.request.body
@@ -11,6 +12,14 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 获取角色列表
+  async role() {
+    const { ctx, service } = this
+    const res = await service.form.findAll('pt_role', null, ['ids', 'names'])
+    ctx.helper.success({ ctx, res })
+  }
+
+  // 获取用户信息
   async userinfo() {
     const { ctx, service } = this
     const userinfo = await service.form.find('pt_user', { ids: ctx.query.token })
@@ -97,7 +106,7 @@ class AdminController extends Controller {
     if (!module_info) {
       ctx.throw(404, '未找到对应的模型数据')
     }
-    const field_arr = await service.admin.modulefieldlist(module_info.name, moduleid)
+    const field_arr = await service.admin.modulefieldlist(moduleid)
     ctx.helper.success({ ctx, res: field_arr })
   }
 
@@ -140,11 +149,22 @@ class AdminController extends Controller {
     const { ctx, service } = this
     const { fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
     if (fieldid && moduleid && field && name && setup) {
-      const is_create = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status }, { id: fieldid })
-      ctx.helper.success({ ctx, res: is_create.insertId })
+      const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status }, { id: fieldid })
+      ctx.helper.success({ ctx, res: is_update })
     } else {
       ctx.throw(404, '缺少字段')
     }
+  }
+
+  // 字段排序
+  async sortfield() {
+    const { ctx, service } = this
+    const { moduleid, sortData } = ctx.request.body
+    if (!moduleid && !sortData) {
+      ctx.throw(404, '缺少参数')
+    }
+    const res = await service.form.updateAll('pt_field', sortData, { moduleid })
+    ctx.helper.success({ ctx, res })
   }
 }
 

@@ -31,6 +31,12 @@ class FormService extends Service {
     return isUpdate
   }
 
+  // 更新信息
+  async updateAll(name, data, condition) {
+    const isUpdate = await this.app.mysql.updateRows(name, data, { where: condition })
+    return isUpdate
+  }
+
   // 删除信息
   async delete(name, condition) {
     const isDelete = await this.app.mysql.delete(name, condition)

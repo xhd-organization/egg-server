@@ -32,12 +32,14 @@ class UserService extends Service {
       ctx.throw(405, `${param.name}已存在`)
       return false
     }
-    const tableType = param.tableType === '0' ? '0' : '1'
-    const sql_createTable = await service.form.createTable(param.name, tableType)
+    const emptytable = param.emptytable === '1' ? '1' : '0'
+    const sql_createTable = await service.form.createTable(param.name, emptytable)
     await this.app.mysql.query(sql_createTable)
     const ids = ctx.helper.getToken(param.name)
-    const is_create = await service.form.create('pt_module', { ids, title: param.title, name: param.name, description: param.description, listfields: param.listfields })
-    const sql_createDefaultField = await service.form.createDefaultField(ids, tableType)
+    const is_create = await service.form.create('pt_module', { ids, title: param.title, isparent: 'false', name: param.name, description: param.description, listfields: param.listfields })
+    console.log(ids)
+    const sql_createDefaultField = await service.form.createDefaultField(ids, emptytable)
+    console.log(sql_createDefaultField)
     await service.form.create('pt_field', sql_createDefaultField)
     if (is_create) {
       return ids
@@ -54,10 +56,18 @@ class UserService extends Service {
    * @returns     {Boolean}                       true=修改成功， false=修改失败
    */
   async updatemodule(param) {
-    const { service } = this
-    const is_update = await service.form.update('pt_module', { name: param.name, title: param.title, description: param.description, listfields: param.listfields }, { ids: param.moduleid })
-    if (is_update) {
-      return true
+    const { ctx, service } = this
+    const module_info = await service.form.find('pt_module', { ids: param.moduleid })
+    if (module_info) {
+      if (module_info.name !== param.name) {
+        await service.form.updateTableName(module_info.name, param.name)
+      }
+      const is_update = await service.form.update('pt_module', { name: param.name, title: param.title, description: param.description, listfields: param.listfields }, { ids: param.moduleid })
+      if (is_update) {
+        return true
+      }
+    } else {
+      ctx.throw(404, '没有发现此模型')
     }
     return false
   }

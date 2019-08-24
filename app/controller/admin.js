@@ -50,6 +50,18 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res: { system, menu }})
   }
 
+  // 获取模型列表
+  async getmodule() {
+    const { ctx, service } = this
+    const count = await service.form.count('pt_module', { isparent: 'false' })
+    const { query: param } = ctx
+    const page = param.page ? param.page : 1
+    const limit = param.limit ? parseInt(param.limit) : 20
+    const offset = (page - 1) * limit
+    const module_arr = await service.form.findAll('pt_module', { isparent: 'false' }, ['ids', 'description', 'names'], [['orderids', 'desc']], limit, offset)
+    ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
+  }
+
   // 创建模型
   async createmodule() {
     const { ctx, service } = this
@@ -74,24 +86,29 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
-  // 获取模型列表
-  async getmodule() {
-    const { ctx, service } = this
-    const count = await service.form.count('pt_module', { isparent: 'false' })
-    const { query: param } = ctx
-    const page = param.page ? param.page : 1
-    const limit = param.limit ? parseInt(param.limit) : 20
-    const offset = (page - 1) * limit
-    const module_arr = await service.form.findAll('pt_module', { isparent: 'false' }, ['ids', 'description', 'names'], [['orderids', 'desc']], limit, offset)
-    ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
-  }
-
   //  获取模型详情信息
   async getmoduledetail() {
     const { ctx, service } = this
-    console.log(ctx.query.moduleid)
     const res = await service.form.find('pt_module', { ids: ctx.query.moduleid })
     ctx.helper.success({ ctx, res })
+  }
+
+  async deletemodule() {
+    const { ctx, service } = this
+    const { moduleid } = ctx.request.body
+    if (!moduleid) {
+      ctx.throw(404, '缺少moduleid字段')
+      return
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (module_info) {
+      await service.form.delete('pt_module', { ids: moduleid })
+      const res = await service.form.delete('pt_field', { moduleid })
+      await service.form.deleteTable(module_info.name)
+      ctx.helper.success({ ctx, res })
+    } else {
+      ctx.throw(404, '没有发现此模型')
+    }
   }
 
   // 获取某个模型的字段列表

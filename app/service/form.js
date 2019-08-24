@@ -82,7 +82,7 @@ class FormService extends Service {
   // 创建表 tablename=表名， tableType=1 创建空表  0=创建数据列表
   async createTable(tablename, tableType) {
     let sql = ''
-    if (tableType === '1') {
+    if (tableType === '0') {
       sql += `CREATE TABLE ${tablename} (`
       sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
@@ -105,7 +105,6 @@ class FormService extends Service {
       sql += `hits int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
-      sql += `lang tinyint(1) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id),`
       sql += `KEY status (id,status,listorder),`
       sql += `KEY catid (id,catid,status),`
@@ -114,24 +113,34 @@ class FormService extends Service {
     } else {
       sql += `CREATE TABLE ${tablename} (`
       sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
-      sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
       sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
-      sql += `username varchar(40) NOT NULL DEFAULT '',`
       sql += `url varchar(60) NOT NULL DEFAULT '',`
       sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
       sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
-      sql += `lang tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id)`
       sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
     }
     return sql
   }
 
+  // 修改表名
+  async updateTableName(oldTableName, newTableName) {
+    const update_table = await this.app.mysql.query(`ALTER TABLE ${oldTableName} RENAME TO ${newTableName}`)
+    return update_table
+  }
+
+  // 删除表
+  async deleteTable(tableName) {
+    const delete_table = await this.app.mysql.query(`DROP TABLE IF EXISTS ${tableName}`)
+    return delete_table
+  }
+
   // 创建默认表字段
   async createDefaultField(moduleid, tableType) {
     let sql = []
-    if (tableType === '1') {
+    if (tableType === '0') {
       sql = [{
         moduleid,
         field: 'catid',

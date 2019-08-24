@@ -17,6 +17,7 @@ module.exports = app => {
   adminRouter.get('/getmodule', controller.admin.getmodule) // 获取模型
   adminRouter.post('/createmodule', controller.admin.createmodule) // 创建模型
   adminRouter.post('/updatemodule', controller.admin.updatemodule) // 更新模型
+  adminRouter.post('/deletemodule', controller.admin.deletemodule) // 删除模型
   adminRouter.get('/getmoduledetail', controller.admin.getmoduledetail) // 模型详情
   adminRouter.get('/modulefieldlist', controller.admin.modulefieldlist) // 获取模型字段列表
   adminRouter.get('/modulefielddetail', controller.admin.modulefielddetail) // 获取字段的信息

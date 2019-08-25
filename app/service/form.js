@@ -137,6 +137,12 @@ class FormService extends Service {
     return delete_table
   }
 
+  // 删除字段
+  async deleteField(tablename, field) {
+    const delete_field = await this.app.mysql.query(`ALTER TABLE ${tablename} DROP ${field}`)
+    return delete_field
+  }
+
   // 创建默认表字段
   async createDefaultField(moduleid, tableType) {
     let sql = []
@@ -297,15 +303,15 @@ class FormService extends Service {
       case 'varchar':
         if (!maxlength) maxlength = 255
         maxlength = Math.min.apply(null, [maxlength, 255])
-        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default}`
+        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default};`
         break
 
       case 'title':
         if (!maxlength) maxlength = 255
         maxlength = Math.min.apply(null, [maxlength, 255])
-        sql = `ALTER TABLE ${tablename} ${way} title VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default}`
-        sql = `ALTER TABLE ${tablename} ${way} title_style VARCHAR( 40 ) NOT NULL DEFAULT `
-        sql = `ALTER TABLE ${tablename} ${way} thumb VARCHAR( 100 ) NOT NULL DEFAULT `
+        sql += `ALTER TABLE ${tablename} ${way} title VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default};`
+        sql += `ALTER TABLE ${tablename} ${way} title_style VARCHAR( 40 ) NOT NULL DEFAULT;`
+        sql += `ALTER TABLE ${tablename} ${way} thumb VARCHAR( 100 ) NOT NULL DEFAULT;`
         break
 
       case 'catid':

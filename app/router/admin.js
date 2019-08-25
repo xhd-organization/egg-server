@@ -23,5 +23,6 @@ module.exports = app => {
   adminRouter.get('/modulefielddetail', controller.admin.modulefielddetail) // 获取字段的信息
   adminRouter.get('/addmodulefield', controller.admin.addmodulefield) // 添加字段
   adminRouter.get('/updatemodulefield', controller.admin.updatemodulefield) // 更新字段
+  adminRouter.post('/deletemodulefield', controller.admin.deletemodulefield) // 删除字段
   adminRouter.post('/sortfield', controller.admin.sortfield) // 字段排序
 }

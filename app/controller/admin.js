@@ -153,7 +153,9 @@ class AdminController extends Controller {
       if (is_exits) {
         ctx.throw(406, '该字段已存在')
       } else {
-        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
+        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
+        const sql_field = await service.form.get_tablesql(ctx.request.body, 'add')
+        await this.app.mysql.query(sql_field)
         ctx.helper.success({ ctx, res: is_create.insertId })
       }
     } else {
@@ -171,6 +173,21 @@ class AdminController extends Controller {
     } else {
       ctx.throw(404, '缺少字段')
     }
+  }
+
+  // 删除字段
+  async deletemodulefield() {
+    const { ctx, service } = this
+    const { moduleid, field, id } = ctx.request.body
+    if (!id && !moduleid && !field) {
+      ctx.throw(404, '缺少字段')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (module_info) {
+      await service.form.deleteField(module_info.name, field)
+    }
+    const delete_field = await service.form.delete('pt_field', { moduleid, field })
+    ctx.helper.success({ ctx, delete_field })
   }
 
   // 字段排序

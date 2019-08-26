@@ -58,7 +58,7 @@ class AdminController extends Controller {
     const page = param.page ? param.page : 1
     const limit = param.limit ? parseInt(param.limit) : 20
     const offset = (page - 1) * limit
-    const module_arr = await service.form.findAll('pt_module', { isparent: 'false' }, ['ids', 'description', 'names'], [['orderids', 'desc']], limit, offset)
+    const module_arr = await service.form.findAll('pt_module', { isparent: 'false' }, ['ids', 'description', 'names', 'title', 'name'], [['orderids', 'desc']], limit, offset)
     ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
   }
 
@@ -93,6 +93,7 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 删除模型
   async deletemodule() {
     const { ctx, service } = this
     const { moduleid } = ctx.request.body
@@ -148,14 +149,14 @@ class AdminController extends Controller {
   async addmodulefield() {
     const { ctx, service } = this
     const { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
-    if (moduleid && field && name && setup) {
+    if (moduleid && field && name) {
       const is_exits = await service.form.find('pt_field', { moduleid, field })
       if (is_exits) {
         ctx.throw(406, '该字段已存在')
       } else {
-        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
         const sql_field = await service.form.get_tablesql(ctx.request.body, 'add')
         await this.app.mysql.query(sql_field)
+        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
         ctx.helper.success({ ctx, res: is_create.insertId })
       }
     } else {
@@ -166,9 +167,11 @@ class AdminController extends Controller {
   // 更新字段
   async updatemodulefield() {
     const { ctx, service } = this
-    const { fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
-    if (fieldid && moduleid && field && name && setup) {
+    const { id: fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
+    if (fieldid && moduleid && field && name) {
       const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status }, { id: fieldid })
+      const sql_field = await service.form.get_tablesql(ctx.request.body, 'edit')
+      await this.app.mysql.query(sql_field)
       ctx.helper.success({ ctx, res: is_update })
     } else {
       ctx.throw(404, '缺少字段')
@@ -198,6 +201,13 @@ class AdminController extends Controller {
       ctx.throw(404, '缺少参数')
     }
     const res = await service.form.updateAll('pt_field', sortData, { moduleid })
+    ctx.helper.success({ ctx, res })
+  }
+
+  // 获取栏目列表
+  async getcategorylist() {
+    const { ctx, service } = this
+    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'arrchildid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
     ctx.helper.success({ ctx, res })
   }
 }

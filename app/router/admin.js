@@ -27,4 +27,7 @@ module.exports = app => {
   adminRouter.post('/sortfield', controller.admin.sortfield) // 字段排序
 
   adminRouter.get('/getcategorylist', controller.admin.getcategorylist) // 获取栏目列表
+  adminRouter.post('/createcategory', controller.admin.createcategory) // 获取栏目列表
+  adminRouter.post('/updatecategory', controller.admin.updatecategory) // 更新栏目信息
+  adminRouter.get('/getcategorydetail', controller.admin.getcategorydetail) // 获取栏目详情
 }

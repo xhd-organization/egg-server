@@ -207,19 +207,19 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'arrchildid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
     ctx.helper.success({ ctx, res })
   }
 
   // 创建栏目
   async createcategory() {
     const { ctx, service } = this
-    const { catname, catdir, parentid, moduleid } = ctx.request.body
+    const { catname, catdir, parentid, moduleid, description } = ctx.request.body
     if (!catname && !catdir && !moduleid && !(parentid === 0 || parentid)) {
       ctx.throw(404, '缺少必填字段')
     }
     if (parentid > 0) {
-      const is_exits = await service.form.find('pt_category', { parentid })
+      const is_exits = await service.form.find('pt_category', { id: parentid })
       if (!is_exits) {
         ctx.throw(404, 'parentid不存在')
       }
@@ -228,15 +228,15 @@ class AdminController extends Controller {
     if (is_exits_catdir) {
       ctx.throw(408, '栏目名称已经存在！')
     }
-    const res = await service.form.create('pt_category', { parentid, catdir, catname })
+    const res = await service.form.create('pt_category', { parentid, moduleid, catdir, catname, description })
     ctx.helper.success({ ctx, res })
   }
 
   // 修改栏目信息
   async updatecategory() {
     const { ctx, service } = this
-    const { id, catdir, catname } = ctx.request.body
-    const res = await service.form.update('pt_category', { id }, { catdir, catname })
+    const { id, catdir, catname, description, moduleid, parentid } = ctx.request.body
+    const res = await service.form.update('pt_category', { id }, { catdir, catname, description, moduleid, parentid })
     ctx.helper.success({ ctx, res })
   }
 
@@ -252,6 +252,34 @@ class AdminController extends Controller {
       ctx.throw(404, '没有找到此栏目信息')
     }
     ctx.helper.success({ ctx, res: category_info })
+  }
+
+  // 删除栏目
+  async deletecategory() {
+    const { ctx, service } = this
+    const { id } = ctx.request.body
+    if (!id) {
+      ctx.throw(404, '缺少字段')
+    }
+    const category_info = await service.form.find('pt_category', { id })
+    if (category_info) {
+      await service.form.delete('pt_category', { id })
+      ctx.helper.success({ ctx })
+    } else {
+      ctx.throw(404, '没有找到此栏目')
+    }
+  }
+
+  // 栏目排序
+  async sortcategory() {
+    const { ctx, service } = this
+    const { sortData } = ctx.request.body
+    if (!sortData) {
+      ctx.throw(404, '缺少参数')
+    }
+    await service.form.updateAll('pt_category', sortData)
+    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    ctx.helper.success({ ctx, res })
   }
 }
 

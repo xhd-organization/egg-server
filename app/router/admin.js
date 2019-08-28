@@ -29,5 +29,7 @@ module.exports = app => {
   adminRouter.get('/getcategorylist', controller.admin.getcategorylist) // 获取栏目列表
   adminRouter.post('/createcategory', controller.admin.createcategory) // 获取栏目列表
   adminRouter.post('/updatecategory', controller.admin.updatecategory) // 更新栏目信息
+  adminRouter.post('/deletecategory', controller.admin.deletecategory) // 删除栏目
+  adminRouter.post('/sortcategory', controller.admin.sortcategory) // 栏目排序
   adminRouter.get('/getcategorydetail', controller.admin.getcategorydetail) // 获取栏目详情
 }

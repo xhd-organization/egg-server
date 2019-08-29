@@ -32,4 +32,6 @@ module.exports = app => {
   adminRouter.post('/deletecategory', controller.admin.deletecategory) // 删除栏目
   adminRouter.post('/sortcategory', controller.admin.sortcategory) // 栏目排序
   adminRouter.get('/getcategorydetail', controller.admin.getcategorydetail) // 获取栏目详情
+
+  adminRouter.get('/getcontentlist', controller.admin.getcontentlist) // 获取内容信息列表
 }

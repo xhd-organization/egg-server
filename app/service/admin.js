@@ -37,9 +37,7 @@ class UserService extends Service {
     await this.app.mysql.query(sql_createTable)
     const ids = ctx.helper.getToken(param.name)
     const is_create = await service.form.create('pt_module', { ids, title: param.title, isparent: 'false', name: param.name, description: param.description, listfields: param.listfields })
-    console.log(ids)
     const sql_createDefaultField = await service.form.createDefaultField(ids, emptytable)
-    console.log(sql_createDefaultField)
     await service.form.create('pt_field', sql_createDefaultField)
     if (is_create) {
       return ids

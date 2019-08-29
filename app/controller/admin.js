@@ -207,15 +207,15 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
     ctx.helper.success({ ctx, res })
   }
 
   // 创建栏目
   async createcategory() {
     const { ctx, service } = this
-    const { catname, catdir, parentid, moduleid, description } = ctx.request.body
-    if (!catname && !catdir && !moduleid && !(parentid === 0 || parentid)) {
+    const { name, path, parentid, moduleid, description } = ctx.request.body
+    if (!name && !path && !moduleid && !(parentid === 0 || parentid)) {
       ctx.throw(404, '缺少必填字段')
     }
     if (parentid > 0) {
@@ -224,19 +224,19 @@ class AdminController extends Controller {
         ctx.throw(404, 'parentid不存在')
       }
     }
-    const is_exits_catdir = await service.form.find('pt_category', { catdir })
-    if (is_exits_catdir) {
+    const is_exits_path = await service.form.find('pt_category', { path })
+    if (is_exits_path) {
       ctx.throw(408, '栏目名称已经存在！')
     }
-    const res = await service.form.create('pt_category', { parentid, moduleid, catdir, catname, description })
+    const res = await service.form.create('pt_category', { parentid, moduleid, path, name, description })
     ctx.helper.success({ ctx, res })
   }
 
   // 修改栏目信息
   async updatecategory() {
     const { ctx, service } = this
-    const { id, catdir, catname, description, moduleid, parentid } = ctx.request.body
-    const res = await service.form.update('pt_category', { id }, { catdir, catname, description, moduleid, parentid })
+    const { id, path, name, description, moduleid, parentid } = ctx.request.body
+    const res = await service.form.update('pt_category', { id }, { path, name, description, moduleid, parentid })
     ctx.helper.success({ ctx, res })
   }
 
@@ -278,8 +278,24 @@ class AdminController extends Controller {
       ctx.throw(404, '缺少参数')
     }
     await service.form.updateAll('pt_category', sortData)
-    const res = await service.form.findAll('pt_category', null, ['id', 'catname', 'catdir', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
     ctx.helper.success({ ctx, res })
+  }
+
+  // 获取内容信息列表
+  async getcontentlist() {
+    const { ctx, service } = this
+    const { id, moduleid } = ctx.query
+    if (!id && !moduleid) {
+      ctx.throw(404, '缺少字段')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (module_info && module_info.name) {
+      const content_arr = await service.form.findAll(module_info.name, { id })
+      ctx.helper.success({ ctx, res: content_arr })
+    } else {
+      ctx.throw(404, '没有找到对应的模型数据')
+    }
   }
 }
 

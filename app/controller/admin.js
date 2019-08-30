@@ -148,7 +148,7 @@ class AdminController extends Controller {
   // 添加字段
   async addmodulefield() {
     const { ctx, service } = this
-    const { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
+    const { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, ispost, errormsg, classname, type, listorder, status } = ctx.request.body
     if (moduleid && field && name) {
       const is_exits = await service.form.find('pt_field', { moduleid, field })
       if (is_exits) {
@@ -156,7 +156,7 @@ class AdminController extends Controller {
       } else {
         const sql_field = await service.form.get_tablesql(ctx.request.body, 'add')
         await this.app.mysql.query(sql_field)
-        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status })
+        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status })
         ctx.helper.success({ ctx, res: is_create.insertId })
       }
     } else {
@@ -167,9 +167,9 @@ class AdminController extends Controller {
   // 更新字段
   async updatemodulefield() {
     const { ctx, service } = this
-    const { id: fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status } = ctx.request.body
+    const { id: fieldid, moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, ispost, errormsg, classname, type, listorder, status } = ctx.request.body
     if (fieldid && moduleid && field && name) {
-      const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, classname, type, listorder, status }, { id: fieldid })
+      const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status }, { id: fieldid })
       const sql_field = await service.form.get_tablesql(ctx.request.body, 'edit')
       await this.app.mysql.query(sql_field)
       ctx.helper.success({ ctx, res: is_update })
@@ -207,14 +207,15 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
     ctx.helper.success({ ctx, res })
   }
 
   // 创建栏目
   async createcategory() {
     const { ctx, service } = this
-    const { name, path, parentid, moduleid, description } = ctx.request.body
+    const { name, path, parentid, moduleid, description, icon } = ctx.request.body
+    let { listfields, selectfields } = ctx.request.body
     if (!name && !path && !moduleid && !(parentid === 0 || parentid)) {
       ctx.throw(404, '缺少必填字段')
     }
@@ -228,15 +229,28 @@ class AdminController extends Controller {
     if (is_exits_path) {
       ctx.throw(408, '栏目名称已经存在！')
     }
-    const res = await service.form.create('pt_category', { parentid, moduleid, path, name, description })
+    if (listfields && listfields.length > 0) {
+      listfields = listfields.toString()
+    }
+    if (selectfields && selectfields.length > 0) {
+      selectfields = selectfields.toString()
+    }
+    const res = await service.form.create('pt_category', { parentid, moduleid, path, name, icon, description, listfields: `${listfields}`, selectfields: `${selectfields}` })
     ctx.helper.success({ ctx, res })
   }
 
   // 修改栏目信息
   async updatecategory() {
     const { ctx, service } = this
-    const { id, path, name, description, moduleid, parentid } = ctx.request.body
-    const res = await service.form.update('pt_category', { id }, { path, name, description, moduleid, parentid })
+    const { id, path, name, description, moduleid, parentid, icon } = ctx.request.body
+    let { listfields, selectfields } = ctx.request.body
+    if (listfields && listfields.length > 0) {
+      listfields = listfields.toString()
+    }
+    if (selectfields && selectfields.length > 0) {
+      selectfields = selectfields.toString()
+    }
+    const res = await service.form.update('pt_category', { path, name, description, moduleid, parentid, icon, listfields: `${listfields}`, selectfields: `${selectfields}` }, { id })
     ctx.helper.success({ ctx, res })
   }
 
@@ -257,9 +271,14 @@ class AdminController extends Controller {
   // 删除栏目
   async deletecategory() {
     const { ctx, service } = this
-    const { id } = ctx.request.body
-    if (!id) {
+    const { id, moduleid } = ctx.request.body
+    if (!id && !moduleid) {
       ctx.throw(404, '缺少字段')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    const is_has_content = await service.form.find(module_info.name, { catid: id })
+    if (is_has_content) {
+      ctx.throw(406, '该栏目下包含数据无法删除！')
     }
     const category_info = await service.form.find('pt_category', { id })
     if (category_info) {
@@ -285,14 +304,31 @@ class AdminController extends Controller {
   // 获取内容信息列表
   async getcontentlist() {
     const { ctx, service } = this
-    const { id, moduleid } = ctx.query
+    const { query: param } = ctx
+    const { id, moduleid } = param
+    let { listfields } = param
     if (!id && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
+    const count = await service.form.count(module_info.name, { catid: id })
+    const page = param.page ? param.page : 1
+    const limit = param.limit ? parseInt(param.limit) : 20
+    const offset = (page - 1) * limit
     if (module_info && module_info.name) {
-      const content_arr = await service.form.findAll(module_info.name, { id })
-      ctx.helper.success({ ctx, res: content_arr })
+      if (!listfields) {
+        listfields = []
+        const field_arr = await service.form.findAll('pt_field', { moduleid })
+        if (field_arr && field_arr.length > 0) {
+          field_arr.map(item => {
+            listfields.push(item.field)
+          })
+        }
+      } else {
+        listfields = listfields.split(',')
+      }
+      const content_arr = await service.form.findAll(module_info.name, { catid: id }, listfields, [['id', 'desc']], limit, offset)
+      ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
     } else {
       ctx.throw(404, '没有找到对应的模型数据')
     }

@@ -80,7 +80,7 @@ class UserService extends Service {
    */
   async modulefieldlist(moduleid) {
     const { service } = this
-    const field = await service.form.findAll('pt_field', { moduleid }, null, [['listorder', 'asc']])
+    const field = await service.form.findAll('pt_field', { moduleid, ispost: 1 }, null, [['listorder', 'asc']])
     return field
   }
 }

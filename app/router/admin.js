@@ -10,6 +10,7 @@ module.exports = app => {
   // const jwt = middleware.checkToken()
   router.get('/', controller.home.index)
   adminRouter.post('/login', controller.admin.login) // 登录
+  adminRouter.post('/logout', controller.admin.logout) // 登出
   adminRouter.get('/role', controller.admin.role) // 获取所有的用户角色信息
   adminRouter.get('/index', controller.admin.index) // 首页统计数据
   adminRouter.get('/getmenu', controller.admin.getmenu) // 获取菜单

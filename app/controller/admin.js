@@ -12,6 +12,12 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 登出
+  async logout() {
+    const { ctx } = this
+    ctx.helper.success({ ctx, res: true })
+  }
+
   // 获取角色列表
   async role() {
     const { ctx, service } = this

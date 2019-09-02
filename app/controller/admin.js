@@ -281,6 +281,10 @@ class AdminController extends Controller {
     if (!id && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
+    const is_has_child = await service.form.find('pt_category', { parentid: id })
+    if (is_has_child) {
+      ctx.throw(406, '该栏目下包含子栏目无法删除！')
+    }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
     const is_has_content = await service.form.find(module_info.name, { catid: id })
     if (is_has_content) {
@@ -311,16 +315,46 @@ class AdminController extends Controller {
   async getcontentlist() {
     const { ctx, service } = this
     const { query: param } = ctx
-    const { id, moduleid } = param
+    const { catid, moduleid, ...select_info } = param
     let { listfields } = param
-    if (!id && !moduleid) {
+    if (!catid && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
-    const count = await service.form.count(module_info.name, { catid: id })
+    const count = await service.form.count(module_info.name, { catid })
     const page = param.page ? param.page : 1
     const limit = param.limit ? parseInt(param.limit) : 20
     const offset = (page - 1) * limit
+    if (module_info && module_info.name) {
+      if (listfields) {
+        listfields = listfields.split(',')
+      } else {
+        listfields = []
+        const field_arr = await service.form.findAll('pt_field', { moduleid })
+        if (field_arr && field_arr.length > 0) {
+          field_arr.map(item => {
+            listfields.push(item.field)
+          })
+        }
+      }
+      listfields.unshift('id')
+      const select_form = Object.assign({}, select_info, { catid })
+      const content_arr = await service.form.searchs(module_info.name, select_form, listfields, [['id', 'desc']], limit, offset)
+      ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
+    } else {
+      ctx.throw(404, '没有找到对应的模型数据')
+    }
+  }
+
+  // 创建内容
+  async createcontent() {
+    const { ctx, service } = this
+    const { catid, moduleid, ...data } = ctx.request.body
+    let { listfields } = ctx.request.body
+    if (!catid && !moduleid) {
+      ctx.throw(404, '缺少字段')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
     if (module_info && module_info.name) {
       if (!listfields) {
         listfields = []
@@ -333,11 +367,53 @@ class AdminController extends Controller {
       } else {
         listfields = listfields.split(',')
       }
-      const content_arr = await service.form.findAll(module_info.name, { catid: id }, listfields, [['id', 'desc']], limit, offset)
-      ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
+      const form = Object.assign({}, data, { catid })
+      const res = await service.form.create(module_info.name, form)
+      ctx.helper.success({ ctx, res: res.insertId })
     } else {
       ctx.throw(404, '没有找到对应的模型数据')
     }
+  }
+
+  // 更新内容
+  async updatecontent() {
+    const { ctx, service } = this
+    const { id, catid, moduleid, ...data } = ctx.request.body
+    let { listfields } = ctx.request.body
+    if (!catid && !moduleid) {
+      ctx.throw(404, '缺少字段')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (module_info && module_info.name) {
+      if (!listfields) {
+        listfields = []
+        const field_arr = await service.form.findAll('pt_field', { moduleid })
+        if (field_arr && field_arr.length > 0) {
+          field_arr.map(item => {
+            listfields.push(item.field)
+          })
+        }
+      } else {
+        listfields = listfields.split(',')
+      }
+      const form = Object.assign({}, data, { catid })
+      const res = await service.form.update(module_info.name, form, { id })
+      ctx.helper.success({ ctx, res })
+    } else {
+      ctx.throw(404, '没有找到对应的模型数据')
+    }
+  }
+
+  // 刪除內容
+  async deletecontent() {
+    const { ctx, service } = this
+    const { id, catid, moduleid } = ctx.request.body
+    if (!id && !catid && !moduleid) {
+      ctx.throw(404, '缺少字段！')
+    }
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    await service.form.delete(module_info.name, { id, catid })
+    ctx.helper.success({ ctx, res: true })
   }
 }
 

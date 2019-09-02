@@ -35,4 +35,7 @@ module.exports = app => {
   adminRouter.get('/getcategorydetail', controller.admin.getcategorydetail) // 获取栏目详情
 
   adminRouter.get('/getcontentlist', controller.admin.getcontentlist) // 获取内容信息列表
+  adminRouter.post('/createcontent', controller.admin.createcontent) // 创建内容
+  adminRouter.post('/updatecontent', controller.admin.updatecontent) // 更新内容
+  adminRouter.post('/deletecontent', controller.admin.deletecontent) // 刪除内容
 }

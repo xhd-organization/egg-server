@@ -51,6 +51,23 @@ class FormService extends Service {
     return info
   }
 
+  // 多条件模糊查询
+  async searchs(name, info, columns) {
+    if (Object.keys(info).length > 0) {
+      let str = ''
+      const arr = Object.keys(info)
+      const len = arr.length
+      for (const key in info) {
+        const is_or = arr[len - 1] === key ? '' : 'or'
+        str += `${key} LIKE ${this.app.mysql.escape('%' + info[key] + '%')} ${is_or}`
+      }
+      const sql = this.app.mysql.format(`SELECT ?? FROM ${name} WHERE ${str}`, [columns])
+      const info = await this.app.mysql.query(sql)
+      return info
+    }
+    return await this.app.mysql.query(`select ?? FROM ${name}`, [columns])
+  }
+
   // 最近几个月的数据
   async findMonth(name, returnArr = '*', month_num, time_field) {
     const info = await this.app.mysql.query(`SELECT ${returnArr.toString()} FROM ${name} WHERE DATE_SUB(CURDATE(), INTERVAL ${month_num} MONTH) <= date(${time_field})`)

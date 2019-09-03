@@ -338,8 +338,8 @@ class AdminController extends Controller {
         }
       }
       listfields.unshift('id')
-      const select_form = Object.assign({}, select_info, { catid })
-      const content_arr = await service.form.searchs(module_info.name, select_form, listfields, [['id', 'desc']], limit, offset)
+      const select_form = Object.assign({}, select_info)
+      const content_arr = await service.form.searchs(module_info.name, { catid }, select_form, listfields, 'id desc', limit, offset)
       ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
     } else {
       ctx.throw(404, '没有找到对应的模型数据')

@@ -52,20 +52,24 @@ class FormService extends Service {
   }
 
   // 多条件模糊查询
-  async searchs(name, info, columns) {
-    if (Object.keys(info).length > 0) {
-      let str = ''
-      const arr = Object.keys(info)
-      const len = arr.length
-      for (const key in info) {
-        const is_or = arr[len - 1] === key ? '' : 'or'
-        str += `${key} LIKE ${this.app.mysql.escape('%' + info[key] + '%')} ${is_or}`
-      }
-      const sql = this.app.mysql.format(`SELECT ?? FROM ${name} WHERE ${str}`, [columns])
-      const info = await this.app.mysql.query(sql)
-      return info
+  async searchs(name, where_condition, where_info, columns, orderByString, limit = 20, offset = 0) {
+    const obj = Object.assign({}, where_info)
+    const arr = Object.keys(obj)
+    const len = arr.length
+    let str = ''
+    let where_if = ''
+    Object.keys(where_condition).map((key) => {
+      where_if += `${key}=${where_condition[key]} `
+    })
+    if (len > 0) {
+      Object.keys(obj).map((key) => {
+        const is_or = arr[len - 1] === key ? '' : 'or '
+        str += `${key} LIKE ${this.app.mysql.escape('%' + obj[key] + '%')} ${is_or}`
+      })
     }
-    return await this.app.mysql.query(`select ?? FROM ${name}`, [columns])
+    const sql = this.app.mysql.format(`SELECT ?? FROM ${name} WHERE ${where_if} ${str ? ('AND ' + str) : ''} order by ${orderByString} LIMIT ${offset} , ${limit}`, [columns])
+    const list = await this.app.mysql.query(sql)
+    return list
   }
 
   // 最近几个月的数据

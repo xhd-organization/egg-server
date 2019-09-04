@@ -72,6 +72,27 @@ class FormService extends Service {
     return list
   }
 
+  // 模糊查询的数量
+  async likeCount(name, where_condition, where_info) {
+    const obj = Object.assign({}, where_info)
+    const arr = Object.keys(obj)
+    const len = arr.length
+    let str = ''
+    let where_if = ''
+    Object.keys(where_condition).map((key) => {
+      where_if += `${key}=${where_condition[key]} `
+    })
+    if (len > 0) {
+      Object.keys(obj).map((key) => {
+        const is_or = arr[len - 1] === key ? '' : 'or '
+        str += `${key} LIKE ${this.app.mysql.escape('%' + obj[key] + '%')} ${is_or}`
+      })
+    }
+    const sql = this.app.mysql.format(`SELECT count(1) FROM ${name} WHERE ${where_if} ${str ? ('AND ' + str) : ''} `)
+    const count = await this.app.mysql.query(sql)
+    return Object.values(count[0])[0]
+  }
+
   // 最近几个月的数据
   async findMonth(name, returnArr = '*', month_num, time_field) {
     const info = await this.app.mysql.query(`SELECT ${returnArr.toString()} FROM ${name} WHERE DATE_SUB(CURDATE(), INTERVAL ${month_num} MONTH) <= date(${time_field})`)
@@ -131,7 +152,7 @@ class FormService extends Service {
       sql += `KEY catid (id,catid,status),`
       sql += `KEY listorder (id,catid,status,listorder)`
       sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
-    } else {
+    } else if (tableType === '1') {
       sql += `CREATE TABLE ${tablename} (`
       sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
       sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
@@ -140,6 +161,15 @@ class FormService extends Service {
       sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
+      sql += `PRIMARY KEY (id)`
+      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+    } else if (tableType === '2') {
+      sql += `CREATE TABLE ${tablename} (`
+      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
+      sql += `parentid int(11) unsigned NOT NULL DEFAULT '0',`
+      sql += `name varchar(40) NOT NULL DEFAULT '',`
+      sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id)`
       sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
     }
@@ -259,7 +289,7 @@ class FormService extends Service {
         status: 1,
         issystem: 0
       }]
-    } else {
+    } else if (tableType === '1') {
       sql = [{
         moduleid,
         field: 'createtime',
@@ -292,6 +322,26 @@ class FormService extends Service {
         type: 'radio',
         setup: '{"options": "发布|1\r\n定时发布|0", "fieldtype": "tinyint", "numbertype": "1", "labelwidth": "75", "default": "1"}',
         ispost: '',
+        unpostgroup: '',
+        listorder: 0,
+        status: 1,
+        issystem: 0
+      }]
+    } else if (tableType === '2') {
+      sql = [{
+        moduleid,
+        field: 'name',
+        name: '名称',
+        tips: '',
+        required: 1,
+        minlength: 3,
+        maxlength: 80,
+        pattern: '',
+        errormsg: '名称必填3-80个字',
+        classname: '',
+        type: 'text',
+        setup: '{"thumb": "1", "style": "1", "size": "55"}',
+        ispost: 1,
         unpostgroup: '',
         listorder: 0,
         status: 1,

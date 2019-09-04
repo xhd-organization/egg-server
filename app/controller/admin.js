@@ -59,12 +59,12 @@ class AdminController extends Controller {
   // 获取模型列表
   async getmodule() {
     const { ctx, service } = this
-    const count = await service.form.count('pt_module', { isparent: 'false' })
+    const count = await service.form.count('pt_module')
     const { query: param } = ctx
     const page = param.page ? param.page : 1
     const limit = param.limit ? parseInt(param.limit) : 20
     const offset = (page - 1) * limit
-    const module_arr = await service.form.findAll('pt_module', { isparent: 'false' }, ['ids', 'description', 'names', 'title', 'name'], [['orderids', 'desc']], limit, offset)
+    const module_arr = await service.form.findAll('pt_module', null, ['ids', 'description', 'title', 'name'], [['ids', 'desc']], limit, offset)
     ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
   }
 
@@ -213,7 +213,7 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'type', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
     ctx.helper.success({ ctx, res })
   }
 
@@ -241,14 +241,15 @@ class AdminController extends Controller {
     if (selectfields && selectfields.length > 0) {
       selectfields = selectfields.toString()
     }
-    const res = await service.form.create('pt_category', { parentid, moduleid, path, name, icon, description, listfields: `${listfields}`, selectfields: `${selectfields}` })
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    const res = await service.form.create('pt_category', { parentid, moduleid, path, type: module_info.type, name, icon, description, listfields: `${listfields}`, selectfields: `${selectfields}` })
     ctx.helper.success({ ctx, res })
   }
 
   // 修改栏目信息
   async updatecategory() {
     const { ctx, service } = this
-    const { id, path, name, description, moduleid, parentid, icon } = ctx.request.body
+    const { id, path, name, description, moduleid, parentid, icon, type } = ctx.request.body
     let { listfields, selectfields } = ctx.request.body
     if (listfields && listfields.length > 0) {
       listfields = listfields.toString()
@@ -256,7 +257,7 @@ class AdminController extends Controller {
     if (selectfields && selectfields.length > 0) {
       selectfields = selectfields.toString()
     }
-    const res = await service.form.update('pt_category', { path, name, description, moduleid, parentid, icon, listfields: `${listfields}`, selectfields: `${selectfields}` }, { id })
+    const res = await service.form.update('pt_category', { path, name, description, type, moduleid, parentid, icon, listfields: `${listfields}`, selectfields: `${selectfields}` }, { id })
     ctx.helper.success({ ctx, res })
   }
 
@@ -307,7 +308,7 @@ class AdminController extends Controller {
       ctx.throw(404, '缺少参数')
     }
     await service.form.updateAll('pt_category', sortData)
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'type', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
     ctx.helper.success({ ctx, res })
   }
 
@@ -321,7 +322,6 @@ class AdminController extends Controller {
       ctx.throw(404, '缺少字段')
     }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
-    const count = await service.form.count(module_info.name, { catid })
     const page = param.page ? param.page : 1
     const limit = param.limit ? parseInt(param.limit) : 20
     const offset = (page - 1) * limit
@@ -340,6 +340,7 @@ class AdminController extends Controller {
       listfields.unshift('id')
       const select_form = Object.assign({}, select_info)
       const content_arr = await service.form.searchs(module_info.name, { catid }, select_form, listfields, 'id desc', limit, offset)
+      const count = await service.form.likeCount(module_info.name, { catid }, select_form)
       ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
     } else {
       ctx.throw(404, '没有找到对应的模型数据')

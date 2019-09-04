@@ -32,11 +32,11 @@ class UserService extends Service {
       ctx.throw(405, `${param.name}已存在`)
       return false
     }
-    const emptytable = param.emptytable === '1' ? '1' : '0'
+    const emptytable = param.emptytable || '0'
     const sql_createTable = await service.form.createTable(param.name, emptytable)
     await this.app.mysql.query(sql_createTable)
     const ids = ctx.helper.getToken(param.name)
-    const is_create = await service.form.create('pt_module', { ids, title: param.title, isparent: 'false', name: param.name, description: param.description, listfields: param.listfields })
+    const is_create = await service.form.create('pt_module', { ids, title: param.title, type: emptytable, name: param.name, description: param.description, listfields: param.listfields })
     const sql_createDefaultField = await service.form.createDefaultField(ids, emptytable)
     await service.form.create('pt_field', sql_createDefaultField)
     if (is_create) {

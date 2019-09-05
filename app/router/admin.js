@@ -38,4 +38,6 @@ module.exports = app => {
   adminRouter.post('/createcontent', controller.admin.createcontent) // 创建内容
   adminRouter.post('/updatecontent', controller.admin.updatecontent) // 更新内容
   adminRouter.post('/deletecontent', controller.admin.deletecontent) // 刪除内容
+
+  // adminRouter.get('/datasource', controller.admin.datasource) // 获取数据源
 }

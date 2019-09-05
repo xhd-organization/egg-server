@@ -129,22 +129,11 @@ class FormService extends Service {
       sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
       sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
-      sql += `username varchar(40) NOT NULL DEFAULT '',`
       sql += `title varchar(120) NOT NULL DEFAULT '',`
-      sql += `title_style varchar(40) NOT NULL DEFAULT '',`
-      sql += `thumb varchar(100) NOT NULL DEFAULT '',`
       sql += `keywords varchar(120) NOT NULL DEFAULT '',`
       sql += `description mediumtext NOT NULL,`
-      sql += `content mediumtext NOT NULL,`
-      sql += `url varchar(60) NOT NULL DEFAULT '',`
-      sql += `template varchar(40) NOT NULL DEFAULT '',`
-      sql += `posid tinyint(2) unsigned NOT NULL DEFAULT '0',`
       sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
-      sql += `recommend tinyint(1) unsigned NOT NULL DEFAULT '0',`
-      sql += `readgroup varchar(100) NOT NULL DEFAULT '',`
-      sql += `readpoint smallint(5) NOT NULL DEFAULT '0',`
       sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
-      sql += `hits int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id),`
@@ -254,24 +243,6 @@ class FormService extends Service {
         issystem: 1
       }, {
         moduleid,
-        field: 'readpoint',
-        name: '访问权限',
-        tips: '',
-        required: 0,
-        minlength: 0,
-        maxlength: 0,
-        pattern: '',
-        errormsg: '',
-        classname: '',
-        type: 'groupid',
-        setup: '{"inputtype": "heckbox", "fieldtype": "inyint", "labelwidth": "5", "default": ""}',
-        ispost: '',
-        unpostgroup: '',
-        listorder: 0,
-        status: 1,
-        issystem: 1
-      }, {
-        moduleid,
         field: 'status',
         name: '状态',
         tips: '',
@@ -358,16 +329,16 @@ class FormService extends Service {
     if (param['setup']['fieldtype']) {
       fieldtype = param['setup']['fieldtype']
     }
-    let _default = param['setup']['default']
+    let _default = param['setup']['default'] || `\'\'`
     const module_info = await this.find('pt_module', { ids: moduleid })
     const tablename = module_info.name
     maxlength = parseInt(maxlength)
     let sql = ''
     const numbertype = param['setup']['numbertype']
     if (way === 'add') {
-      way = ' ADD '
+      way = 'ADD '
     } else {
-      way = ` CHANGE ${oldfield} `
+      way = `CHANGE ${oldfield}`
     }
 
     switch (fieldtype) {
@@ -381,8 +352,6 @@ class FormService extends Service {
         if (!maxlength) maxlength = 255
         maxlength = Math.min.apply(null, [maxlength, 255])
         sql += `ALTER TABLE ${tablename} ${way} title VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default};`
-        sql += `ALTER TABLE ${tablename} ${way} title_style VARCHAR( 40 ) NOT NULL DEFAULT;`
-        sql += `ALTER TABLE ${tablename} ${way} thumb VARCHAR( 100 ) NOT NULL DEFAULT;`
         break
 
       case 'catid':

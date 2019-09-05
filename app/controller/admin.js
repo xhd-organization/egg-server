@@ -121,7 +121,7 @@ class AdminController extends Controller {
   // 获取某个模型的字段列表
   async modulefieldlist() {
     const { ctx, service } = this
-    const { moduleid } = ctx.query
+    const { moduleid, is_field } = ctx.query
     if (!moduleid) {
       ctx.throw(404, '字段不能为空')
       return false
@@ -130,7 +130,7 @@ class AdminController extends Controller {
     if (!module_info) {
       ctx.throw(404, '未找到对应的模型数据')
     }
-    const field_arr = await service.admin.modulefieldlist(moduleid)
+    const field_arr = await service.admin.modulefieldlist(moduleid, is_field)
     ctx.helper.success({ ctx, res: field_arr })
   }
 
@@ -415,6 +415,13 @@ class AdminController extends Controller {
     const module_info = await service.form.find('pt_module', { ids: moduleid })
     await service.form.delete(module_info.name, { id, catid })
     ctx.helper.success({ ctx, res: true })
+  }
+
+  // 获取数据源列表
+  async datasource() {
+    const { ctx, service } = this
+    const res = await service.form.findAll('pt_category', { issource: 1 }, ['id', 'name', 'moduleid', 'listfields'])
+    ctx.helper.success({ ctx, res })
   }
 }
 

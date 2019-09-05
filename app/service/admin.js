@@ -78,9 +78,13 @@ class UserService extends Service {
    * @param       {String}                 name 表名
    * @returns     {Array}                      表的字段信息
    */
-  async modulefieldlist(moduleid) {
+  async modulefieldlist(moduleid, is_field) {
     const { service } = this
-    const field = await service.form.findAll('pt_field', { moduleid, ispost: 1 }, null, [['listorder', 'asc']])
+    const obj = { moduleid, ispost: 1 }
+    if (is_field) {
+      delete obj.ispost
+    }
+    const field = await service.form.findAll('pt_field', obj, null, [['listorder', 'asc']])
     return field
   }
 }

@@ -351,7 +351,7 @@ class FormService extends Service {
       case 'title':
         if (!maxlength) maxlength = 255
         maxlength = Math.min.apply(null, [maxlength, 255])
-        sql += `ALTER TABLE ${tablename} ${way} title VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default};`
+        sql += `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( ${maxlength} ) NOT NULL DEFAULT ${_default};`
         break
 
       case 'catid':
@@ -403,9 +403,12 @@ class FormService extends Service {
         sql = `ALTER TABLE ${tablename} ${way} ${field} TINYINT(2) UNSIGNED NOT NULL DEFAULT '0'`
         break
 
-        // case 'typeid':
-        // sql = "ALTER TABLE ${tablename} ${way} ${field} SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0'"
-        // break
+      case 'source':
+        if (!maxlength) maxlength = 100
+        maxlength = Math.min.apply(null, [maxlength, 100])
+        sql = `ALTER TABLE ${tablename} ${way} ${field} VARCHAR( ${maxlength} ) NOT NULL DEFAULT '0'`
+        break
+
       case 'datetime':
         sql = `ALTER TABLE ${tablename} ${way} ${field} INT(11) UNSIGNED NOT NULL DEFAULT '0'`
         break

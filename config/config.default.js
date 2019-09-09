@@ -30,10 +30,11 @@ module.exports = appInfo => {
       'http://127.0.0.1:8080',
       'http://127.0.0.1:7001',
       'http://127.0.0.1:9527',
+      'http://192.168.16.154:9527',
       'https://open.weixin.qq.com'
     ],
     methodnoallow: {
-      enable: false
+      enable: true
     },
     csrf: {
       enable: false,
@@ -79,7 +80,7 @@ module.exports = appInfo => {
   }
 
   config.cors = {
-    origin: 'http://127.0.0.1:9527',
+    origin: '',
     allowHeaders: ['Content-Type', 'Content-Length', 'Authorization', 'Accept', 'X-Requested-With', 'Admin-Token', 'X-token'],
     credentials: true,
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'

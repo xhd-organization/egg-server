@@ -177,6 +177,7 @@ class AdminController extends Controller {
     if (fieldid && moduleid && field && name) {
       const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status }, { id: fieldid })
       const sql_field = await service.form.get_tablesql(ctx.request.body, 'edit')
+      console.log(sql_field)
       await this.app.mysql.query(sql_field)
       ctx.helper.success({ ctx, res: is_update })
     } else {
@@ -316,14 +317,14 @@ class AdminController extends Controller {
   async getcontentlist() {
     const { ctx, service } = this
     const { query: param } = ctx
-    const { catid, moduleid, ...select_info } = param
+    const { catid, moduleid, page: page_number, limit: limit_number, ...select_info } = param
     let { listfields } = param
     if (!catid && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
-    const page = param.page ? param.page : 1
-    const limit = param.limit ? parseInt(param.limit) : 20
+    const page = page_number || 1
+    const limit = limit_number ? parseInt(limit_number) : 20
     const offset = (page - 1) * limit
     if (module_info && module_info.name) {
       if (listfields) {
@@ -350,7 +351,7 @@ class AdminController extends Controller {
   // 创建内容
   async createcontent() {
     const { ctx, service } = this
-    const { catid, moduleid, ...data } = ctx.request.body
+    const { catid, moduleid, createtime, ...data } = ctx.request.body
     let { listfields } = ctx.request.body
     if (!catid && !moduleid) {
       ctx.throw(404, '缺少字段')
@@ -368,7 +369,13 @@ class AdminController extends Controller {
       } else {
         listfields = listfields.split(',')
       }
-      const form = Object.assign({}, data, { catid })
+      let time = ''
+      if (createtime === '') {
+        time = new Date(this.app.mysql.literals.now).getTime()
+      } else if (createtime) {
+        time = new Date(createtime).getTime()
+      }
+      const form = Object.assign({}, data, { catid, createtime: time })
       const res = await service.form.create(module_info.name, form)
       ctx.helper.success({ ctx, res: res.insertId })
     } else {

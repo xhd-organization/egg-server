@@ -72,7 +72,7 @@ module.exports = appInfo => {
   config.code = code
 
   config.multipart = {
-    fileExtensions: ['.apk', '.pptx', '.docx', '.csv', '.doc', '.ppt', '.pdf', '.pages', '.wav', '.mov'] // 增加对 .apk 扩展名的支持
+    fileExtensions: ['.apk', '.pptx', '.docx', '.csv', '.doc', '.ppt', '.pdf', '.pages', '.wav', '.mov', '.jpg'] // 增加对 .apk 扩展名的支持
   }
 
   config.bcrypt = {

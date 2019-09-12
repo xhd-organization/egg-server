@@ -40,4 +40,5 @@ module.exports = app => {
   adminRouter.post('/deletecontent', controller.admin.deletecontent) // 刪除内容
 
   // adminRouter.get('/datasource', controller.admin.datasource) // 获取数据源
+  adminRouter.post('/upload', controller.adminAccess.upload)
 }

@@ -317,14 +317,14 @@ class AdminController extends Controller {
   async getcontentlist() {
     const { ctx, service } = this
     const { query: param } = ctx
-    const { catid, moduleid, page: page_number, limit: limit_number, ...select_info } = param
+    const { catid, moduleid, is_all, page: page_number, limit: limit_number, ...select_info } = param
     let { listfields } = param
     if (!catid && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
     const module_info = await service.form.find('pt_module', { ids: moduleid })
     const page = page_number || 1
-    const limit = limit_number ? parseInt(limit_number) : 20
+    let limit = limit_number ? parseInt(limit_number) : 20
     const offset = (page - 1) * limit
     if (module_info && module_info.name) {
       if (listfields) {
@@ -338,10 +338,16 @@ class AdminController extends Controller {
           })
         }
       }
+      if (module_info.type === '2') {
+        listfields.push('parentid')
+      }
       listfields.unshift('id')
       const select_form = Object.assign({}, select_info)
-      const content_arr = await service.form.searchs(module_info.name, { catid }, select_form, listfields, 'id desc', limit, offset)
       const count = await service.form.likeCount(module_info.name, { catid }, select_form)
+      if (is_all) {
+        limit = count
+      }
+      const content_arr = await service.form.searchs(module_info.name, { catid }, select_form, listfields, 'id desc', limit, offset)
       ctx.helper.success({ ctx, res: { items: content_arr, total: count }})
     } else {
       ctx.throw(404, '没有找到对应的模型数据')
@@ -375,7 +381,8 @@ class AdminController extends Controller {
       } else if (createtime) {
         time = new Date(createtime).getTime()
       }
-      const form = Object.assign({}, data, { catid, createtime: time })
+      const id = ctx.helper.getToken(time)
+      const form = Object.assign({}, data, { catid, createtime: time, id })
       const res = await service.form.create(module_info.name, form)
       ctx.helper.success({ ctx, res: res.insertId })
     } else {

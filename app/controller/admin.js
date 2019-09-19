@@ -214,7 +214,7 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'type', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize'], [['listorder', 'asc'], ['id', 'asc']], 100)
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'componenturl', 'type', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize', 'postgroup'], [['listorder', 'asc'], ['id', 'asc']], 100)
     ctx.helper.success({ ctx, res })
   }
 

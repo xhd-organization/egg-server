@@ -391,6 +391,10 @@ class FormService extends Service {
         sql = `ALTER TABLE ${tablename} ${way} ${field} INT ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
         break
 
+      case 'textarea':
+        sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
+        break
+
       case 'mediumtext':
         sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
         break

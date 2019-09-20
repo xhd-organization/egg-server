@@ -41,4 +41,6 @@ module.exports = app => {
 
   // adminRouter.get('/datasource', controller.admin.datasource) // 获取数据源
   adminRouter.post('/upload', controller.adminAccess.upload)
+
+  adminRouter.post('/updateCategoryPermission', controller.admin.updateCategoryPermission) // 更新栏目信息和栏目角色权限
 }

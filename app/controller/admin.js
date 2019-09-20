@@ -25,6 +25,51 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 更新角色信息和栏目权限
+  async updateCategoryPermission() {
+    const { ctx, service } = this
+    const { id, catid, categoryids, moduleid, description, name } = ctx.request.body
+    if (!id && !catid && !categoryids && !moduleid) {
+      ctx.throw(404, '缺少字段')
+    }
+    const cids = categoryids.split(',')
+    const module_info = await service.form.find('pt_module', { ids: moduleid })
+    if (module_info) {
+      const role = await service.form.find(module_info.name, { id })
+      await service.form.update(module_info.name, { name, description }, { id, catid })
+      if (role) {
+        const count = await service.form.count('pt_category')
+        const category_list = await service.form.findAll('pt_category', null, ['id', 'postgroup'], [['listorder', 'asx'], ['id', 'desc']], count)
+        const arr = category_list.map(item => {
+          const postgroup = item.postgroup ? item.postgroup.split(',') : []
+          const is_add = cids.indexOf(item.id.toString()) > -1
+          const is_in_group = postgroup.indexOf(id) > -1 ? postgroup.indexOf(id) : false
+          let group = ''
+          if (is_add) {
+            if (is_in_group) {
+              group = postgroup.toString()
+            } else {
+              postgroup.push(id)
+              group = postgroup.toString()
+            }
+          } else {
+            if (is_in_group === false) {
+              group = postgroup.toString()
+            } else {
+              postgroup.splice(is_in_group, 1)
+              group = postgroup.toString()
+            }
+          }
+          return { id: item.id, postgroup: group }
+        })
+        await service.form.updateAll('pt_category', arr, null)
+        ctx.helper.success({ ctx, res: true })
+      }
+    } else {
+      ctx.throw(404, '未找到此模型')
+    }
+  }
+
   // 获取用户信息
   async userinfo() {
     const { ctx, service } = this
@@ -42,9 +87,13 @@ class AdminController extends Controller {
     const download_num = await service.form.count('downloadrecord')
     const learn_num = await service.form.count('lt_learnrecord')
     const feedback_num = await service.form.count('lt_feedback')
-    const feedback_arr = await service.form.findAll('lt_feedback', null, ['ids', 'description', 'createTime', 'type'], [['createTime', 'desc']], 10)
+    const feedback_arr = await service.form.findAll('lt_feedback', null, ['ids', 'description', 'createTime', 'type'], [
+      ['createTime', 'desc']
+    ], 10)
     const wechat_num = await service.form.count('wx_msg')
-    const version = await service.form.findAll('pt_version', null, null, [['create_time', 'desc']])
+    const version = await service.form.findAll('pt_version', null, null, [
+      ['create_time', 'desc']
+    ])
     ctx.helper.success({ ctx, res: { num: num, download_num, learn_num, feedback_num, wechat_num, feedback_arr, version }})
   }
 
@@ -64,7 +113,9 @@ class AdminController extends Controller {
     const page = param.page ? param.page : 1
     const limit = param.limit ? parseInt(param.limit) : 20
     const offset = (page - 1) * limit
-    const module_arr = await service.form.findAll('pt_module', null, ['ids', 'description', 'title', 'name'], [['ids', 'desc']], limit, offset)
+    const module_arr = await service.form.findAll('pt_module', null, ['ids', 'description', 'title', 'name'], [
+      ['ids', 'desc']
+    ], limit, offset)
     ctx.helper.success({ ctx, res: { items: module_arr, total: count }})
   }
 
@@ -214,7 +265,10 @@ class AdminController extends Controller {
   // 获取栏目列表
   async getcategorylist() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'componenturl', 'type', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize', 'postgroup'], [['listorder', 'asc'], ['id', 'asc']], 100)
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'componenturl', 'type', 'module', 'moduleid', 'icon', 'listfields', 'selectfields', 'listorder', 'ismenu', 'pagesize', 'postgroup'], [
+      ['listorder', 'asc'],
+      ['id', 'asc']
+    ], 100)
     ctx.helper.success({ ctx, res })
   }
 
@@ -309,7 +363,10 @@ class AdminController extends Controller {
       ctx.throw(404, '缺少参数')
     }
     await service.form.updateAll('pt_category', sortData)
-    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'type', 'module', 'moduleid', 'listorder', 'ismenu'], [['listorder', 'asc'], ['id', 'asc']])
+    const res = await service.form.findAll('pt_category', null, ['id', 'name', 'path', 'parentid', 'type', 'module', 'moduleid', 'listorder', 'ismenu'], [
+      ['listorder', 'asc'],
+      ['id', 'asc']
+    ])
     ctx.helper.success({ ctx, res })
   }
 

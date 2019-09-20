@@ -126,7 +126,7 @@ class FormService extends Service {
     let sql = ''
     if (tableType === '0') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `id varchar(32) unsigned NOT NULL,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
       sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
       sql += `title varchar(120) NOT NULL DEFAULT '',`
@@ -140,10 +140,10 @@ class FormService extends Service {
       sql += `KEY status (id,status,listorder),`
       sql += `KEY catid (id,catid,status),`
       sql += `KEY listorder (id,catid,status,listorder)`
-      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+      sql += `) ENGINE=MyISAM DEFAULT CHARSET=utf8;`
     } else if (tableType === '1') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `id varchar(32) unsigned NOT NULL,`
       sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
       sql += `url varchar(60) NOT NULL DEFAULT '',`
       sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
@@ -151,16 +151,16 @@ class FormService extends Service {
       sql += `updatetime int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `status tinyint(1) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id)`
-      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+      sql += `) ENGINE=MyISAM DEFAULT CHARSET=utf8;`
     } else if (tableType === '2') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id int(11) unsigned NOT NULL AUTO_INCREMENT,`
+      sql += `id varchar(32) unsigned NOT NULL,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
       sql += `parentid int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `name varchar(40) NOT NULL DEFAULT '',`
       sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
       sql += `PRIMARY KEY (id)`
-      sql += `) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;`
+      sql += `) ENGINE=MyISAM DEFAULT CHARSET=utf8;`
     }
     return sql
   }

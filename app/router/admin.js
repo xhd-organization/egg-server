@@ -1,6 +1,6 @@
 /**
  * 后台路由地址
- * @date        2019-05-16
+ * @date        2019-08-16
  * @author cnvp
  * @anotherdate 2019-05-16T09:06:57+0800
  */
@@ -11,7 +11,6 @@ module.exports = app => {
   router.get('/', controller.home.index)
   adminRouter.post('/login', controller.admin.login) // 登录
   adminRouter.post('/logout', controller.admin.logout) // 登出
-  adminRouter.get('/role', controller.admin.role) // 获取所有的用户角色信息
   adminRouter.get('/index', controller.admin.index) // 首页统计数据
   adminRouter.get('/getmenu', controller.admin.getmenu) // 获取菜单
   adminRouter.get('/userinfo', controller.admin.userinfo) // 获取用户基本信息
@@ -43,4 +42,6 @@ module.exports = app => {
   adminRouter.post('/upload', controller.adminAccess.upload)
 
   adminRouter.post('/updateCategoryPermission', controller.admin.updateCategoryPermission) // 更新栏目信息和栏目角色权限
+  adminRouter.post('/createCategoryPermission', controller.admin.createCategoryPermission) // 创建栏目信息和栏目角色权限
+  adminRouter.post('/deleteCategoryPsermission', controller.admin.deleteCategoryPsermission) // 删除信息和栏目角色权限
 }

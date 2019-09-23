@@ -17,6 +17,86 @@ class UserService extends Service {
     ctx.throw(404, '未找到此用户')
   }
 
+  // 创建和编辑角色权限信息
+  async categoryPsermissin(param) {
+    const { ctx, service } = this
+    const cids = param.categoryids.split(',')
+    let { id } = param
+    let is_edit = true
+    const module_info = await service.form.find('pt_module', { ids: param.moduleid })
+    if (module_info) {
+      const count = await service.form.count('pt_category')
+      const category_list = await service.form.findAll('pt_category', null, ['id', 'postgroup'], [['listorder', 'asx'], ['id', 'desc']], count)
+      if (id) {
+        is_edit = true
+        const role = await service.form.find(module_info.name, { id })
+        if (!role) {
+          ctx.throw(404, '未发现此角色')
+        }
+        await service.form.update(module_info.name, { name: param.name, description: param.description }, { id, catid: param.catid })
+      } else {
+        is_edit = false
+        const time = new Date().getTime()
+        id = ctx.helper.getToken(time)
+        await service.form.create(module_info.name, { id, name: param.name, description: param.description, catid: param.catid })
+      }
+      const arr = category_list.map(item => {
+        const postgroup = item.postgroup ? item.postgroup.split(',') : []
+        const is_add = cids.indexOf(item.id.toString()) > -1
+        const is_in_group = postgroup.indexOf(id) > -1 ? postgroup.indexOf(id) : false
+        if (is_add) {
+          if (is_in_group === false) {
+            postgroup.push(id)
+          }
+        } else {
+          if (is_in_group !== false) {
+            postgroup.splice(is_in_group, 1)
+          }
+        }
+        return { id: item.id, postgroup: postgroup.toString() }
+      })
+      await service.form.updateAll('pt_category', arr, null)
+      if (is_edit) {
+        return true
+      } else {
+        return id
+      }
+    } else {
+      ctx.throw(404, '未找到此模型')
+    }
+  }
+
+  // 删除角色信息以及该角色的栏目权限
+  async deleteRolePsermissin(param) {
+    const { ctx, service } = this
+    const module_info = await service.form.find('pt_module', { ids: param.moduleid })
+    if (module_info) {
+      const count = await service.form.count('pt_category')
+      const category_list = await service.form.findAll('pt_category', null, ['id', 'postgroup'], [['listorder', 'asx'], ['id', 'desc']], count)
+      const is_delete = await service.form.delete(module_info.name, { id: param.id })
+      const arr = category_list.map(item => {
+        const postgroup = item.postgroup ? item.postgroup.split(',') : []
+        let group = ''
+        const is_in_group = postgroup.indexOf(param.id) > -1 ? postgroup.indexOf(param.id) : false
+        if (is_in_group === false) {
+          group = postgroup.toString()
+        } else {
+          postgroup.splice(is_in_group, 1)
+          group = postgroup.toString()
+        }
+        return { id: item.id, postgroup: group }
+      })
+      await service.form.updateAll('pt_category', arr, null)
+      if (is_delete.affectedRows > 0) {
+        return true
+      } else {
+        ctx.throw(406, '删除角色失败!')
+      }
+    } else {
+      ctx.throw(404, '未找到此模型')
+    }
+  }
+
   /**
    * 创建模型,初始化字段
    * @date        2019-08-20

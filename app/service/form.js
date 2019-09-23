@@ -126,9 +126,10 @@ class FormService extends Service {
     let sql = ''
     if (tableType === '0') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id varchar(32) unsigned NOT NULL,`
+      sql += `id varchar(32) NOT NULL,`
+      // sql += `id varchar(32) unsigned NOT NULL,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
-      sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
+      sql += `userid varchar(32) NOT NULL DEFAULT '0',`
       sql += `title varchar(120) NOT NULL DEFAULT '',`
       sql += `keywords varchar(120) NOT NULL DEFAULT '',`
       sql += `description mediumtext NOT NULL,`
@@ -143,8 +144,8 @@ class FormService extends Service {
       sql += `) ENGINE=MyISAM DEFAULT CHARSET=utf8;`
     } else if (tableType === '1') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id varchar(32) unsigned NOT NULL,`
-      sql += `userid int(8) unsigned NOT NULL DEFAULT '0',`
+      sql += `id varchar(32) NOT NULL,`
+      sql += `userid varchar(32) NOT NULL DEFAULT '0',`
       sql += `url varchar(60) NOT NULL DEFAULT '',`
       sql += `listorder int(10) unsigned NOT NULL DEFAULT '0',`
       sql += `createtime int(11) unsigned NOT NULL DEFAULT '0',`
@@ -154,7 +155,7 @@ class FormService extends Service {
       sql += `) ENGINE=MyISAM DEFAULT CHARSET=utf8;`
     } else if (tableType === '2') {
       sql += `CREATE TABLE ${tablename} (`
-      sql += `id varchar(32) unsigned NOT NULL,`
+      sql += `id varchar(32) NOT NULL,`
       sql += `catid smallint(5) unsigned NOT NULL DEFAULT '0',`
       sql += `parentid int(11) unsigned NOT NULL DEFAULT '0',`
       sql += `name varchar(40) NOT NULL DEFAULT '',`

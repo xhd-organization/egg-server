@@ -18,10 +18,14 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res: true })
   }
 
-  // 获取角色列表
-  async role() {
+  // 创建角色信息和栏目权限
+  async createCategoryPermission() {
     const { ctx, service } = this
-    const res = await service.form.findAll('pt_role', null, ['ids', 'names'])
+    const { catid, categoryids, moduleid, description, name } = ctx.request.body
+    if (!catid && !categoryids && !moduleid) {
+      ctx.throw(404, '缺少字段')
+    }
+    const res = await service.admin.categoryPsermissin({ categoryids, catid, moduleid, description, name })
     ctx.helper.success({ ctx, res })
   }
 
@@ -32,42 +36,19 @@ class AdminController extends Controller {
     if (!id && !catid && !categoryids && !moduleid) {
       ctx.throw(404, '缺少字段')
     }
-    const cids = categoryids.split(',')
-    const module_info = await service.form.find('pt_module', { ids: moduleid })
-    if (module_info) {
-      const role = await service.form.find(module_info.name, { id })
-      await service.form.update(module_info.name, { name, description }, { id, catid })
-      if (role) {
-        const count = await service.form.count('pt_category')
-        const category_list = await service.form.findAll('pt_category', null, ['id', 'postgroup'], [['listorder', 'asx'], ['id', 'desc']], count)
-        const arr = category_list.map(item => {
-          const postgroup = item.postgroup ? item.postgroup.split(',') : []
-          const is_add = cids.indexOf(item.id.toString()) > -1
-          const is_in_group = postgroup.indexOf(id) > -1 ? postgroup.indexOf(id) : false
-          let group = ''
-          if (is_add) {
-            if (is_in_group) {
-              group = postgroup.toString()
-            } else {
-              postgroup.push(id)
-              group = postgroup.toString()
-            }
-          } else {
-            if (is_in_group === false) {
-              group = postgroup.toString()
-            } else {
-              postgroup.splice(is_in_group, 1)
-              group = postgroup.toString()
-            }
-          }
-          return { id: item.id, postgroup: group }
-        })
-        await service.form.updateAll('pt_category', arr, null)
-        ctx.helper.success({ ctx, res: true })
-      }
-    } else {
-      ctx.throw(404, '未找到此模型')
+    const is_update = await service.admin.categoryPsermissin({ id, categoryids, catid, moduleid, description, name })
+    ctx.helper.success({ ctx, res: is_update })
+  }
+
+  // 删除角色信息和栏目权限
+  async deleteCategoryPsermission() {
+    const { ctx, service } = this
+    const { id, catid, moduleid } = ctx.request.body
+    if (!id && !catid && !moduleid) {
+      ctx.throw(404, '缺少字段')
     }
+    await service.admin.deleteRolePsermissin({ id, catid, moduleid })
+    ctx.helper.success({ ctx, res: true })
   }
 
   // 获取用户信息
@@ -228,7 +209,6 @@ class AdminController extends Controller {
     if (fieldid && moduleid && field && name) {
       const is_update = await service.form.update('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status }, { id: fieldid })
       const sql_field = await service.form.get_tablesql(ctx.request.body, 'edit')
-      console.log(sql_field)
       await this.app.mysql.query(sql_field)
       ctx.helper.success({ ctx, res: is_update })
     } else {
@@ -434,7 +414,7 @@ class AdminController extends Controller {
       }
       let time = ''
       if (createtime === '') {
-        time = new Date(this.app.mysql.literals.now).getTime()
+        time = new Date().getTime()
       } else if (createtime) {
         time = new Date(createtime).getTime()
       }

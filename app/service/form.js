@@ -327,15 +327,16 @@ class FormService extends Service {
   async get_tablesql(param, way) {
     const { moduleid, field, oldfield } = param
     let { type: fieldtype, maxlength } = param
-    if (param['setup']['fieldtype']) {
-      fieldtype = param['setup']['fieldtype']
+    const setup = param['setup'] ? JSON.parse(param['setup']) : {}
+    if (setup['fieldtype']) {
+      fieldtype = setup['fieldtype']
     }
-    let _default = param['setup']['default'] || `\'\'`
+    let _default = setup['default'] || `\'\'`
     const module_info = await this.find('pt_module', { ids: moduleid })
     const tablename = module_info.name
     maxlength = parseInt(maxlength)
     let sql = ''
-    const numbertype = param['setup']['numbertype']
+    const numbertype = setup['numbertype']
     if (way === 'add') {
       way = 'ADD '
     } else {
@@ -390,10 +391,6 @@ class FormService extends Service {
       case 'mediumint':
         _default = parseInt(_default)
         sql = `ALTER TABLE ${tablename} ${way} ${field} INT ${(numbertype === 1 ? 'UNSIGNED' : '')} NOT NULL DEFAULT ${_default}`
-        break
-
-      case 'textarea':
-        sql = `ALTER TABLE ${tablename} ${way} ${field} MEDIUMTEXT NOT NULL`
         break
 
       case 'mediumtext':

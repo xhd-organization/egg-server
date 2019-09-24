@@ -194,7 +194,7 @@ class AdminController extends Controller {
       } else {
         const sql_field = await service.form.get_tablesql(ctx.request.body, 'add')
         await this.app.mysql.query(sql_field)
-        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup: JSON.stringify(setup), tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status })
+        const is_create = await service.form.create('pt_field', { moduleid, field, name, setup, tips, required, minlength, maxlength, pattern, errormsg, ispost, classname, type, listorder, status })
         ctx.helper.success({ ctx, res: is_create.insertId })
       }
     } else {

@@ -58,7 +58,11 @@ class AdminController extends Controller {
     if (!userinfo) {
       ctx.throw(404, 'token错误')
     }
-    ctx.helper.success({ ctx, res: { roles: ['admin'], name: userinfo.names, avatar: '', introduction: userinfo.email }})
+    const role_info = await service.form.find('pt_userrole', { userids: ctx.query.token })
+    if (!role_info) {
+      ctx.throw(404, '没有找到此用户的角色信息')
+    }
+    ctx.helper.success({ ctx, res: { roles: ['admin', role_info.roleids], name: userinfo.names, avatar: '', introduction: userinfo.email }})
   }
 
   // 统计数据

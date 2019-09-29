@@ -44,4 +44,6 @@ module.exports = app => {
   adminRouter.post('/updateCategoryPermission', controller.admin.updateCategoryPermission) // 更新栏目信息和栏目角色权限
   adminRouter.post('/createCategoryPermission', controller.admin.createCategoryPermission) // 创建栏目信息和栏目角色权限
   adminRouter.post('/deleteCategoryPsermission', controller.admin.deleteCategoryPsermission) // 删除信息和栏目角色权限
+
+  adminRouter.post('/user', controller.admin.user) // 创建用户
 }

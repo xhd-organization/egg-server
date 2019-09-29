@@ -17,6 +17,18 @@ exports.getToken = function(openid) {
   return token
 }
 
+// 密码加盐
+exports.cryptoPassword = function(password, salt) {
+  const md5 = crypto.createHash('md5')
+  const cryptoPwd = md5.update(`${password}${salt}`).digest('hex')
+  return cryptoPwd
+}
+
+// 生成随机盐
+exports.getSalt = function(salt) {
+  return crypto.randomBytes(11)
+}
+
 // 解密token值
 exports.decodeToken = function(token) {
   const decoded = this.ctx.app.jwt.decode(token, { complete: true })
@@ -73,9 +85,9 @@ exports.getMenuName = function(menuArr, EventKey) {
  * @returns {array}
  */
 exports.formatWechatMenu = function(menuArr) {
-  let arr = new Array(5)
+  const arr = new Array(5)
   menuArr.forEach(function(value, index) {
-    let menu_info = {
+    const menu_info = {
       "name": value.name,
       "sub_button": []
     }

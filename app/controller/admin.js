@@ -12,6 +12,27 @@ class AdminController extends Controller {
     ctx.helper.success({ ctx, res })
   }
 
+  // 创建用户
+  async user() {
+    const { ctx, service } = this
+    const { keys } = this.config
+    const { username, password, roleid, names } = ctx.request.body
+    if (!username && !password && !roleid) {
+      ctx.throw(404, '缺少参数')
+    }
+    const role_info = await service.form.find('pt_role_info', { id: roleid })
+    if (!role_info) {
+      ctx.throw(404, '没有找到此角色信息')
+    }
+    const id = ctx.helper.getToken(new Date().getTime())
+    const salt = `${username},${keys}`
+    const encodeSalt = Buffer.from(salt).toString('base64')
+    const cryptoPassword = ctx.helper.cryptoPassword(password, salt)
+    const encodePassword = Buffer.from(cryptoPassword).toString('base64')
+    await service.form.create('pt_user', { ids: id, username, password: encodePassword, salt: encodeSalt, status: 1, names, roleids: roleid })
+    ctx.helper.success({ ctx, res: id })
+  }
+
   // 登出
   async logout() {
     const { ctx } = this
@@ -58,11 +79,17 @@ class AdminController extends Controller {
     if (!userinfo) {
       ctx.throw(404, 'token错误')
     }
-    const role_info = await service.form.find('pt_userrole', { userids: ctx.query.token })
-    if (!role_info) {
-      ctx.throw(404, '没有找到此用户的角色信息')
+    let role = ''
+    if (userinfo.username === 'admins') {
+      role = 'admin'
+    } else {
+      const role_info = await service.form.find('pt_role_info', { id: userinfo.roleids })
+      if (!role_info) {
+        ctx.throw(404, '没有找到此用户的角色信息')
+      }
+      role = userinfo.roleids
     }
-    ctx.helper.success({ ctx, res: { roles: ['admin', role_info.roleids], name: userinfo.names, avatar: '', introduction: userinfo.email }})
+    ctx.helper.success({ ctx, res: { roles: [role], name: userinfo.names, avatar: '', introduction: userinfo.email }})
   }
 
   // 统计数据

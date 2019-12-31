@@ -29,6 +29,7 @@ module.exports = appInfo => {
     domainWhiteList: [
       'http://127.0.0.1:8080',
       'http://127.0.0.1:7001',
+      'http://localhost:9527',
       'http://127.0.0.1:9527',
       'http://192.168.16.154:9527',
       'https://open.weixin.qq.com'
@@ -80,7 +81,7 @@ module.exports = appInfo => {
   }
 
   config.cors = {
-    origin: '',
+    origin: 'http://localhost:9527',
     allowHeaders: ['Content-Type', 'Content-Length', 'Authorization', 'Accept', 'X-Requested-With', 'Admin-Token', 'X-token'],
     credentials: true,
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'
